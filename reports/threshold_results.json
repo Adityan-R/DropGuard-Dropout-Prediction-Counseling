@@ -1,0 +1,8 @@
+{
+  "best_threshold": 0.409531,
+  "f2_at_best_threshold": 0.704698,
+  "pr_auc": 0.527385,
+  "recall_at_default": 0.565217,
+  "recall_at_optimal": 0.913043,
+  "precision_at_default": 0.464286
+}
