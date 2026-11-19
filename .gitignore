@@ -1,0 +1,28 @@
+# Data
+data/raw/
+
+# Models
+models/*.joblib
+models/*.pkl
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+*.egg-info/
+
+# Distribution
+dist/
+build/
+
+# Environment
+.env
+venv/
+
+# OS
+.DS_Store
+
+# Local virtualenv
+.venv/
