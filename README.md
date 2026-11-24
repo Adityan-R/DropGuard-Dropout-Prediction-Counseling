@@ -11,6 +11,14 @@ Academic institutions frequently struggle to detect students at risk of academic
 
 ---
 
+## Interactive Dashboard and Telemetry Interface
+
+![DropGuard Interactive Inference and Telemetry Interface](reports/figures/app_dashboard.png)
+
+*Figure 1: The DropGuard interactive operational interface (`app/streamlit_app.py`). The dashboard integrates real-time student telemetry controls in the sidebar, held-out model diagnostic benchmarks (Random Forest test ROC-AUC: 0.963, 100% at-risk sensitivity at $\tau = 0.338$), localized SHAP feature attribution decomposition, and automated counseling synthesis.*
+
+---
+
 ## Dataset and Label Definition
 
 ### Data Source
