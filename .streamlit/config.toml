@@ -12,16 +12,16 @@ textColor = "#F8FAFC"
 borderColor = "#272443"
 showWidgetBorder = true
 showSidebarBorder = true
-baseRadius = "8px"
-buttonRadius = "8px"
-font = "'Inter':https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-headingFont = "'Inter':https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800&display=swap"
-codeFont = "'JetBrains Mono':https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap"
-baseFontSize = 14
-baseFontWeight = 400
+baseRadius = "4px"
+buttonRadius = "4px"
+font = "'Pixelify Sans':https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&display=swap"
+headingFont = "'Pixelify Sans':https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@600;700&display=swap"
+codeFont = "'Silkscreen':https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap"
+baseFontSize = 16
+baseFontWeight = 500
 codeFontSize = "13px"
-headingFontSizes = ["32px", "24px", "19px", "16px", "14px", "12px"]
-headingFontWeights = [800, 700, 600, 600, 500, 500]
+headingFontSizes = ["30px", "23px", "19px", "16px", "14px", "12px"]
+headingFontWeights = [700, 600, 600, 600, 500, 500]
 linkUnderline = false
 paddingTop = "1rem"
 paddingBottom = "3rem"

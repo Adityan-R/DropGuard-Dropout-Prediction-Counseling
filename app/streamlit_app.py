@@ -2,7 +2,7 @@
 app/streamlit_app.py
 --------------------
 DropGuard — Autonomous Student Dropout Risk Prediction & Counseling Engine
-High-tech dark interface inspired by frontier compute & telemetry dashboards.
+Cybernetic interface styled with standardized pixel typography and zero emojis.
 
 Run from project root:
     streamlit run app/streamlit_app.py
@@ -110,7 +110,7 @@ def _load_sample_notes() -> str:
 
 
 # ---------------------------------------------------------------------------
-# SHAP visualization with Dark Cybernetic Palette
+# SHAP visualization with Pixel / Dark Cybernetic Palette
 # ---------------------------------------------------------------------------
 
 def _shap_bar_chart(
@@ -119,7 +119,7 @@ def _shap_bar_chart(
     feature_names_raw: list[str],
     top_n: int = 5,
 ) -> plt.Figure:
-    """Return a styled matplotlib Figure matching the dark violet aesthetic."""
+    """Return a styled matplotlib Figure matching the pixel dark aesthetic."""
     from sklearn.pipeline import Pipeline as SkPipeline
     from sklearn.linear_model import LogisticRegression
 
@@ -166,13 +166,13 @@ def _shap_bar_chart(
         for prefix in ("num__", "cat__", "remainder__"):
             if clean.startswith(prefix):
                 clean = clean[len(prefix):]
-        clean = clean.replace("_scaled", "").replace("_encoded", "").replace("_", " ")
+        clean = clean.replace("_scaled", "").replace("_encoded", "").replace("_", " ").upper()
         cleaned_names.append(clean)
 
     abs_shap = np.abs(shap_row)
     top_idx = np.argsort(abs_shap)[-top_n:][::-1]
 
-    top_names = [cleaned_names[i] if i < len(cleaned_names) else f"f{i}" for i in top_idx]
+    top_names = [cleaned_names[i] if i < len(cleaned_names) else f"F{i}" for i in top_idx]
     top_values = [shap_row[i] for i in top_idx]
 
     # Plot styling
@@ -184,39 +184,58 @@ def _shap_bar_chart(
     colors = ["#F43F5E" if v > 0 else "#8B5CF6" for v in top_values]
 
     y_pos = np.arange(len(top_names))
-    ax.barh(y_pos, top_values[::-1], color=colors[::-1], height=0.6, edgecolor="rgba(255,255,255,0.1)", linewidth=0.8)
+    ax.barh(y_pos, top_values[::-1], color=colors[::-1], height=0.55, edgecolor="rgba(255,255,255,0.15)", linewidth=0.8)
 
     ax.set_yticks(y_pos)
-    ax.set_yticklabels(top_names[::-1], color="#E2E8F0", fontsize=10, fontweight="bold")
+    ax.set_yticklabels(top_names[::-1], color="#E2E8F0", fontsize=9.5, fontweight="bold", fontfamily="monospace")
     ax.tick_params(axis="x", colors="#94A3B8", labelsize=9)
     ax.axvline(0, color="#64748B", linewidth=1.0, linestyle="--", alpha=0.7)
 
     # Grid & borders
     ax.grid(axis="x", color="rgba(255,255,255,0.06)", linestyle="-", linewidth=0.7)
     for spine in ax.spines.values():
-        spine.set_color("rgba(255,255,255,0.1)")
+        spine.set_color("rgba(255,255,255,0.12)")
 
-    ax.set_xlabel("SHAP Impact  (← Protective  |  Risk Elevating →)", color="#94A3B8", fontsize=10, labelpad=8)
-    ax.set_title(f"TOP {top_n} MODEL DRIVERS  [ LOCAL EXPLANATION ]", color="#F8FAFC", fontsize=11, fontweight="bold", pad=12, loc="left", fontfamily="sans-serif")
+    ax.set_xlabel("SHAP VALUE (<- PROTECTIVE | RISK ELEVATING ->)", color="#94A3B8", fontsize=9, labelpad=8, fontfamily="monospace")
+    ax.set_title(f"TOP {top_n} MODEL DRIVERS [LOCAL SHAP VECTOR]", color="#F8FAFC", fontsize=10.5, fontweight="bold", pad=12, loc="left", fontfamily="monospace")
 
     plt.tight_layout()
     return fig
 
 
 # ---------------------------------------------------------------------------
-# UI Style Injection (Arctic / Frontier Compute aesthetic)
+# UI Style Injection (Standardized Pixel Font & Frontier Compute Theme)
 # ---------------------------------------------------------------------------
 
 def _inject_custom_css():
     st.html("""
     <style>
-    /* Global Background Adjustments */
+    @import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Silkscreen:wght@400;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+    /* Global Typography Reset with Pixelify Sans */
+    html, body, [class*="st-"], .stMarkdown, p, span, label, input, select, textarea, div {
+        font-family: 'Pixelify Sans', monospace, sans-serif !important;
+        font-size: 15.5px;
+        letter-spacing: 0.02em;
+    }
+    
+    /* Code and Technical Tags */
+    code, pre, .card-tag, .hero-badge, .hero-ticker {
+        font-family: 'Silkscreen', 'JetBrains Mono', monospace !important;
+    }
+
+    /* Headings */
+    h1, h2, h3, h4, h5, h6, .hero-title, .card-val {
+        font-family: 'Pixelify Sans', 'Silkscreen', monospace !important;
+        letter-spacing: 0.03em;
+    }
+    
     .stApp {
         background-color: #06060C;
         color: #F8FAFC;
     }
     
-    /* Hero Banner with glowing purple digital scanline wave */
+    /* Hero Banner with purple digital scanline wave */
     .hero-container {
         position: relative;
         overflow: hidden;
@@ -225,10 +244,10 @@ def _inject_custom_css():
             repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.035) 0px, rgba(255, 255, 255, 0.035) 1px, transparent 1px, transparent 5px),
             linear-gradient(180deg, #100D22 0%, #06060C 100%);
         border: 1px solid rgba(139, 92, 246, 0.35);
-        border-radius: 16px;
-        padding: 3rem 2.5rem 2.2rem 2.5rem;
+        border-radius: 10px;
+        padding: 2.8rem 2.2rem 2rem 2.2rem;
         margin-bottom: 2rem;
-        box-shadow: 0 20px 50px -15px rgba(124, 58, 237, 0.35);
+        box-shadow: 0 16px 40px -12px rgba(124, 58, 237, 0.35);
     }
     
     .hero-badge {
@@ -238,76 +257,64 @@ def _inject_custom_css():
         background: rgba(139, 92, 246, 0.16);
         border: 1px solid rgba(167, 139, 250, 0.4);
         color: #DDD6FE;
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.73rem;
-        font-weight: 600;
+        font-size: 0.72rem !important;
+        font-weight: 700;
         letter-spacing: 0.08em;
-        padding: 0.3rem 0.85rem;
-        border-radius: 9999px;
-        margin-bottom: 1.2rem;
+        padding: 0.3rem 0.8rem;
+        border-radius: 4px;
+        margin-bottom: 1.1rem;
         text-transform: uppercase;
     }
     
     .hero-title {
-        font-family: 'Inter', -apple-system, sans-serif;
-        font-size: 2.85rem;
-        font-weight: 800;
-        letter-spacing: -0.035em;
-        line-height: 1.15;
+        font-size: 2.35rem !important;
+        font-weight: 700;
+        line-height: 1.2;
         color: #FFFFFF;
-        margin: 0 0 1rem 0;
-        text-shadow: 0 2px 20px rgba(255, 255, 255, 0.15);
+        margin: 0 0 0.9rem 0;
+        text-shadow: 0 2px 14px rgba(255, 255, 255, 0.12);
     }
     
     .hero-sub {
-        font-size: 1.05rem;
+        font-size: 1.02rem !important;
         color: #94A3B8;
-        max-width: 780px;
+        max-width: 820px;
         line-height: 1.6;
-        margin-bottom: 2rem;
+        margin-bottom: 1.8rem;
     }
     
     .hero-ticker {
         display: flex;
         flex-wrap: wrap;
-        gap: 1.5rem 2.5rem;
+        gap: 1.2rem 2rem;
         border-top: 1px solid rgba(255, 255, 255, 0.1);
-        padding-top: 1.4rem;
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.78rem;
+        padding-top: 1.2rem;
+        font-size: 0.74rem !important;
         color: #94A3B8;
-    }
-    
-    .hero-ticker span {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
     }
     
     .hero-ticker strong {
         color: #F8FAFC;
-        font-weight: 600;
     }
 
     /* Telemetry grid cards */
     .metric-grid-card {
-        background: rgba(16, 15, 31, 0.7);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 12px;
-        padding: 1.25rem 1.4rem;
+        background: rgba(16, 15, 31, 0.75);
+        border: 1px solid rgba(255, 255, 255, 0.09);
+        border-radius: 8px;
+        padding: 1.15rem 1.3rem;
         height: 100%;
-        backdrop-filter: blur(12px);
-        transition: transform 0.2s ease, border-color 0.2s ease;
+        backdrop-filter: blur(10px);
+        transition: transform 0.15s ease, border-color 0.15s ease;
     }
     
     .metric-grid-card:hover {
-        border-color: rgba(139, 92, 246, 0.45);
+        border-color: rgba(139, 92, 246, 0.5);
         transform: translateY(-2px);
     }
     
     .card-tag {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.68rem;
+        font-size: 0.68rem !important;
         color: #A78BFA;
         letter-spacing: 0.06em;
         text-transform: uppercase;
@@ -315,22 +322,22 @@ def _inject_custom_css():
     }
     
     .card-val {
-        font-size: 1.65rem;
+        font-size: 1.55rem !important;
         font-weight: 700;
         color: #FFFFFF;
         margin-bottom: 0.2rem;
     }
     
     .card-desc {
-        font-size: 0.78rem;
+        font-size: 0.82rem !important;
         color: #94A3B8;
-        line-height: 1.4;
+        line-height: 1.45;
     }
 
-    /* Risk Status Cards */
+    /* Risk Status Banners */
     .risk-banner {
-        padding: 1.4rem 1.6rem;
-        border-radius: 12px;
+        padding: 1.3rem 1.5rem;
+        border-radius: 8px;
         margin-bottom: 1.2rem;
         border: 1px solid transparent;
         display: flex;
@@ -340,37 +347,44 @@ def _inject_custom_css():
     
     .risk-banner.high {
         background: linear-gradient(135deg, rgba(239, 68, 68, 0.18) 0%, rgba(15, 12, 25, 0.8) 100%);
-        border-color: rgba(239, 68, 68, 0.4);
+        border-color: rgba(239, 68, 68, 0.45);
     }
     
     .risk-banner.med {
         background: linear-gradient(135deg, rgba(245, 158, 11, 0.18) 0%, rgba(15, 12, 25, 0.8) 100%);
-        border-color: rgba(245, 158, 11, 0.4);
+        border-color: rgba(245, 158, 11, 0.45);
     }
     
     .risk-banner.low {
         background: linear-gradient(135deg, rgba(16, 185, 129, 0.18) 0%, rgba(15, 12, 25, 0.8) 100%);
-        border-color: rgba(16, 185, 129, 0.4);
+        border-color: rgba(16, 185, 129, 0.45);
+    }
+
+    /* Buttons */
+    .stButton>button {
+        font-family: 'Silkscreen', 'Pixelify Sans', monospace !important;
+        font-size: 0.85rem !important;
+        letter-spacing: 0.05em;
+        border-radius: 4px !important;
+        padding: 0.55rem 1rem !important;
     }
     
-    /* Dossier container */
-    .dossier-box {
-        background: #0E0D1B;
-        border: 1px solid rgba(139, 92, 246, 0.25);
-        border-radius: 12px;
-        padding: 1.5rem;
-        margin-top: 1rem;
+    /* Tabs styling */
+    button[data-baseweb="tab"] {
+        font-family: 'Silkscreen', 'Pixelify Sans', monospace !important;
+        font-size: 0.82rem !important;
+        letter-spacing: 0.04em;
     }
     </style>
     """)
 
 
 # ---------------------------------------------------------------------------
-# Presets Data for Fast Inspection
+# Presets Data for Fast Inspection (Clean Titles, No Emojis)
 # ---------------------------------------------------------------------------
 PRESETS = {
     "Custom (Manual Input)": None,
-    "High Risk — Student #150 (G2 Drop, Prior Failures)": {
+    "High Risk: Student #150 (G2 Drop, Prior Failures)": {
         "school": "GP", "sex": "M", "age": 18, "address": "U", "famsize": "LE3", "Pstatus": "T",
         "Medu": 2, "Fedu": 1, "Mjob": "services", "Fjob": "other", "guardian": "mother", "reason": "course",
         "traveltime": 2, "studytime": 1, "failures": 2, "schoolsup": "no", "famsup": "yes", "paid": "no",
@@ -378,7 +392,7 @@ PRESETS = {
         "famrel": 3, "freetime": 4, "goout": 4, "Dalc": 2, "Walc": 3, "health": 3, "absences": 12,
         "G1": 6, "G2": 5, "course": "math"
     },
-    "High Risk — Student #18 (High Absences, Chronic Struggles)": {
+    "High Risk: Student #18 (High Absences, Chronic Struggles)": {
         "school": "GP", "sex": "F", "age": 17, "address": "U", "famsize": "GT3", "Pstatus": "T",
         "Medu": 3, "Fedu": 2, "Mjob": "services", "Fjob": "services", "guardian": "mother", "reason": "course",
         "traveltime": 1, "studytime": 1, "failures": 1, "schoolsup": "yes", "famsup": "yes", "paid": "no",
@@ -386,7 +400,7 @@ PRESETS = {
         "famrel": 5, "freetime": 3, "goout": 4, "Dalc": 2, "Walc": 4, "health": 5, "absences": 22,
         "G1": 7, "G2": 6, "course": "portuguese"
     },
-    "Moderate Risk — Student #10 (Borderline G2, Moderate Engagement)": {
+    "Moderate Risk: Student #10 (Borderline G2, Moderate Engagement)": {
         "school": "GP", "sex": "F", "age": 16, "address": "U", "famsize": "GT3", "Pstatus": "T",
         "Medu": 3, "Fedu": 4, "Mjob": "services", "Fjob": "other", "guardian": "mother", "reason": "home",
         "traveltime": 1, "studytime": 2, "failures": 0, "schoolsup": "no", "famsup": "yes", "paid": "yes",
@@ -394,7 +408,7 @@ PRESETS = {
         "famrel": 4, "freetime": 3, "goout": 3, "Dalc": 1, "Walc": 2, "health": 4, "absences": 6,
         "G1": 10, "G2": 9, "course": "math"
     },
-    "Low Risk — Student #42 (High Study Time, Strong Grades)": {
+    "Low Risk: Student #42 (High Study Time, Strong Grades)": {
         "school": "GP", "sex": "F", "age": 16, "address": "U", "famsize": "GT3", "Pstatus": "T",
         "Medu": 4, "Fedu": 4, "Mjob": "teacher", "Fjob": "services", "guardian": "father", "reason": "reputation",
         "traveltime": 1, "studytime": 3, "failures": 0, "schoolsup": "no", "famsup": "yes", "paid": "no",
@@ -412,7 +426,7 @@ PRESETS = {
 def main() -> None:
     st.set_page_config(
         page_title="DropGuard // Autonomous Student Risk Core",
-        page_icon="🛡️",
+        page_icon=":material/shield:",
         layout="wide",
         initial_sidebar_state="expanded",
     )
@@ -436,7 +450,7 @@ def main() -> None:
     # ------------------------------------------------------------------ HERO
     st.html("""
     <div class="hero-container">
-        <div class="hero-badge">⚡ INT395 // ML INFERENCE CORE • RANDOM FOREST (AUC 0.963)</div>
+        <div class="hero-badge">INT395 // ML INFERENCE CORE • RANDOM FOREST (AUC 0.963)</div>
         <h1 class="hero-title">Dropout risk, predicted before it happens.</h1>
         <p class="hero-sub">
             DropGuard continuously evaluates academic trajectories and socioeconomic drivers across secondary students.
@@ -493,7 +507,7 @@ def main() -> None:
 
     # ------------------------------------------------------------------ TABS
     tab_assess, tab_insights, tab_dossiers = st.tabs(
-        ["⚡ Live Inference & Risk Telemetry", "📊 Model Benchmarks & Ablation", "📑 Test Case Dossiers"]
+        ["Live Inference & Risk Telemetry", "Model Benchmarks & Ablation", "Test Case Dossiers"]
     )
 
     # ==================================================================
@@ -502,11 +516,11 @@ def main() -> None:
     with tab_assess:
         # Sidebar Controls
         with st.sidebar:
-            st.header("🎛️ Telemetry Inputs")
+            st.header("Telemetry Inputs")
             
             # Preset selector
             selected_preset_name = st.selectbox(
-                "⚡ Quick Load Profile Preset",
+                "Quick Load Profile Preset",
                 list(PRESETS.keys()),
                 index=0,
                 help="Select a benchmark student to test immediate risk scoring."
@@ -535,7 +549,7 @@ def main() -> None:
 
                 age = st.slider("Student Age", 15, 22, _val("age", 17))
 
-                with st.expander("🛠️ Background & Socioeconomic Attributes", expanded=False):
+                with st.expander("Background & Socioeconomic Attributes", expanded=False):
                     school = st.selectbox("School Campus", ["GP", "MS"], index=0 if _val("school", "GP") == "GP" else 1)
                     address = st.selectbox("Address Setting", ["U", "R"], index=0 if _val("address", "U") == "U" else 1)
                     famsize = st.selectbox("Family Size", ["GT3", "LE3"], index=0 if _val("famsize", "GT3") == "GT3" else 1)
@@ -562,14 +576,14 @@ def main() -> None:
                     Walc = st.slider("Weekend Alcohol Consumption (1-5)", 1, 5, _val("Walc", 1))
                     health = st.slider("Self-Reported Health (1-5)", 1, 5, _val("health", 3))
 
-                submitted = st.form_submit_button("⚡ Run Risk Assessment & Diagnostics", type="primary", use_container_width=True)
+                submitted = st.form_submit_button("Run Risk Assessment & Diagnostics", type="primary", use_container_width=True)
 
         # Main Telemetry Viewport
         should_run = submitted or (selected_preset_name != "Custom (Manual Input)")
 
         if not should_run:
             st.info(
-                "👈 Adjust telemetry controls or pick a **Quick Load Preset** in the sidebar, then click **Run Risk Assessment**."
+                "Adjust telemetry controls or pick a **Quick Load Preset** in the sidebar, then click **Run Risk Assessment**."
             )
         else:
             raw_input: dict = {
@@ -599,7 +613,7 @@ def main() -> None:
             X_student = student_df_clean[feature_cols]
 
             if not model_ok:
-                st.warning("⚠️ Serialized model missing at `models/best_model.joblib`. Execute `make train` first.")
+                st.warning("Serialized model missing at `models/best_model.joblib`. Execute `make train` first.")
             else:
                 try:
                     prob_arr = pipeline.predict_proba(X_student)
@@ -630,10 +644,10 @@ def main() -> None:
                 st.html(f"""
                 <div class="risk-banner {banner_cls}">
                     <div>
-                        <div style="font-family:'JetBrains Mono',monospace; font-size:0.75rem; color:{badge_color}; font-weight:700; letter-spacing:0.08em;">
+                        <div style="font-family:'Silkscreen',monospace; font-size:0.75rem; color:{badge_color}; font-weight:700; letter-spacing:0.08em;">
                             DIAGNOSTIC STATUS // {status_title}
                         </div>
-                        <div style="font-size:1.45rem; font-weight:800; color:#FFFFFF; margin-top:0.2rem;">
+                        <div style="font-size:1.45rem; font-weight:700; color:#FFFFFF; margin-top:0.2rem;">
                             Predicted Dropout Probability: {risk_pct}%
                         </div>
                         <div style="font-size:0.85rem; color:#CBD5E1; margin-top:0.3rem;">
@@ -641,7 +655,7 @@ def main() -> None:
                         </div>
                     </div>
                     <div style="text-align:right;">
-                        <span style="font-family:'JetBrains Mono',monospace; font-size:2.2rem; font-weight:800; color:{badge_color};">
+                        <span style="font-family:'Silkscreen',monospace; font-size:2.2rem; font-weight:700; color:{badge_color};">
                             {prob:.3f}
                         </span>
                         <div style="font-size:0.75rem; color:#94A3B8;">CLASSIFICATION CUTOFF: 0.338</div>
@@ -653,7 +667,7 @@ def main() -> None:
                 col_left, col_right = st.columns([1.1, 0.9])
 
                 with col_left:
-                    st.subheader("🔍 Local Feature Attribution (SHAP)")
+                    st.subheader("Local Feature Attribution (SHAP)")
                     if not _SHAP_AVAILABLE:
                         st.info("SHAP package not found. Feature attributions disabled.")
                     else:
@@ -666,7 +680,7 @@ def main() -> None:
                             st.warning(f"SHAP attribution notice: {shap_err}")
 
                 with col_right:
-                    st.subheader("📋 Autonomous Counselor Action Brief")
+                    st.subheader("Counselor Action Brief")
                     top_drivers = []
                     try:
                         feat_names = list(pipeline.named_steps["preprocessor"].get_feature_names_out())
@@ -686,7 +700,7 @@ def main() -> None:
     # TAB 2: Model Benchmarks & Ablation
     # ==================================================================
     with tab_insights:
-        st.subheader("📊 Cross-Validation Model Matrix (5-Fold Stratified)")
+        st.subheader("Cross-Validation Model Matrix (5-Fold Stratified)")
 
         if COMPARISON_PATH.exists():
             try:
@@ -700,7 +714,7 @@ def main() -> None:
         # Telemetry columns: Metrics JSON & Threshold Tuning
         col_t1, col_t2 = st.columns(2)
         with col_t1:
-            st.subheader("🎯 Optimal Decision Boundary Tuning")
+            st.subheader("Optimal Decision Boundary Tuning")
             if THRESHOLD_PATH.exists():
                 try:
                     with THRESHOLD_PATH.open("r", encoding="utf-8") as fh:
@@ -712,7 +726,7 @@ def main() -> None:
                 st.info("No threshold tuning results found.")
 
         with col_t2:
-            st.subheader("🏆 Test Evaluation Payload")
+            st.subheader("Test Evaluation Payload")
             if METRICS_PATH.exists():
                 try:
                     with METRICS_PATH.open("r", encoding="utf-8") as fh:
@@ -726,7 +740,7 @@ def main() -> None:
         st.divider()
 
         # Research Plots Gallery
-        st.subheader("📈 Experiment Research Figures")
+        st.subheader("Experiment Research Figures")
         if FIGURES_DIR.exists():
             png_files = sorted(FIGURES_DIR.glob("*.png"))
             if png_files:
@@ -742,7 +756,7 @@ def main() -> None:
     # TAB 3: Test Case Dossiers
     # ==================================================================
     with tab_dossiers:
-        st.subheader("📑 Test Cohort Case Studies & Sample Notes")
+        st.subheader("Test Cohort Case Studies & Sample Notes")
         st.markdown(
             "Auto-generated intelligence notes for the **top 10 highest-risk students** evaluated on the unseen test set."
         )
