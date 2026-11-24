@@ -177,11 +177,11 @@ def _shap_bar_chart(
 
     # Plot styling
     fig, ax = plt.subplots(figsize=(8, 3.8))
-    fig.patch.set_facecolor("#0B0A16")
-    ax.set_facecolor("#0E0D1C")
+    fig.patch.set_facecolor("#080D1A")
+    ax.set_facecolor("#0A1124")
 
-    # Neon colors: crimson for risk increase, electric violet/cyan for risk decrease
-    colors = ["#F43F5E" if v > 0 else "#8B5CF6" for v in top_values]
+    # Neon colors: crimson for risk increase, cobalt blue for risk decrease
+    colors = ["#F43F5E" if v > 0 else "#2563EB" for v in top_values]
 
     y_pos = np.arange(len(top_names))
     ax.barh(y_pos, top_values[::-1], color=colors[::-1], height=0.55, edgecolor="rgba(255,255,255,0.15)", linewidth=0.8)
@@ -204,7 +204,7 @@ def _shap_bar_chart(
 
 
 # ---------------------------------------------------------------------------
-# UI Style Injection (Standardized Pixel Font & Frontier Compute Theme)
+# UI Style Injection (Standardized Pixel Font, Cobalt Theme & Auto-Resize)
 # ---------------------------------------------------------------------------
 
 def _inject_custom_css():
@@ -253,14 +253,131 @@ def _inject_custom_css():
     }
     
     .stApp {
-        background-color: #06060C;
+        background-color: #040711;
         color: #F8FAFC;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    /* Sidebar Width & Polish */
+    /* ========================================================= */
+    /* CUSTOM DESIGNED SCROLLBAR & MENU (Cobalt Glow)            */
+    /* ========================================================= */
+    ::-webkit-scrollbar {
+        width: 7px;
+        height: 7px;
+    }
+    ::-webkit-scrollbar-track {
+        background: #040711;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, #1E40AF 0%, #2563EB 50%, #3B82F6 100%);
+        border-radius: 4px;
+        border: 1px solid rgba(96, 165, 250, 0.3);
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(180deg, #2563EB 0%, #3B82F6 50%, #60A5FA 100%);
+        box-shadow: 0 0 10px rgba(37, 99, 235, 0.7);
+    }
+
+    /* Custom Designed Dropdown Popover & Select Scroll Menu */
+    [data-baseweb="popover"],
+    [data-baseweb="menu"],
+    ul[role="listbox"] {
+        background-color: #0A1124 !important;
+        border: 1px solid rgba(37, 99, 235, 0.45) !important;
+        border-radius: 6px !important;
+        box-shadow: 0 12px 35px -5px rgba(0, 0, 0, 0.8), 0 0 20px rgba(37, 99, 235, 0.25) !important;
+        max-height: 280px !important;
+    }
+
+    li[role="option"] {
+        background: transparent !important;
+        color: #E2E8F0 !important;
+        font-family: 'Pixelify Sans', monospace !important;
+        font-size: 0.88rem !important;
+        padding: 0.55rem 0.85rem !important;
+        transition: background 0.15s ease, color 0.15s ease !important;
+        border-left: 2px solid transparent !important;
+    }
+
+    li[role="option"]:hover,
+    li[role="option"][aria-selected="true"] {
+        background: rgba(37, 99, 235, 0.22) !important;
+        color: #FFFFFF !important;
+        border-left: 2px solid #3B82F6 !important;
+    }
+
+    /* ========================================================= */
+    /* SIDEBAR PINNED EDGE ARROW & RESPONSIVE MAIN PAGE RESIZING */
+    /* ========================================================= */
     [data-testid="stSidebar"] {
         min-width: 350px !important;
         max-width: 390px !important;
+        background-color: #080D1A !important;
+        border-right: 1px solid rgba(37, 99, 235, 0.3) !important;
+    }
+
+    /* Position the collapse toggle right on the upper-right edge of the sidebar */
+    [data-testid="stSidebarCollapseButton"] {
+        position: absolute !important;
+        top: 14px !important;
+        right: 10px !important;
+        z-index: 1000 !important;
+        background: rgba(10, 17, 36, 0.95) !important;
+        border: 1px solid rgba(37, 99, 235, 0.5) !important;
+        border-radius: 4px !important;
+        color: #60A5FA !important;
+        padding: 4px !important;
+        transition: all 0.2s ease !important;
+    }
+    
+    [data-testid="stSidebarCollapseButton"]:hover {
+        background: rgba(37, 99, 235, 0.3) !important;
+        border-color: #60A5FA !important;
+        box-shadow: 0 0 12px rgba(37, 99, 235, 0.6) !important;
+    }
+
+    /* Pinned expand tab right on the left screen edge when sidebar is hidden */
+    [data-testid="stSidebarCollapsedControl"] {
+        position: fixed !important;
+        top: 14px !important;
+        left: 0px !important;
+        z-index: 99999 !important;
+        background: rgba(10, 17, 36, 0.95) !important;
+        border: 1px solid rgba(37, 99, 235, 0.55) !important;
+        border-left: none !important;
+        border-radius: 0 6px 6px 0 !important;
+        padding: 5px 8px !important;
+        box-shadow: 3px 0 16px rgba(37, 99, 235, 0.4) !important;
+        transition: all 0.2s ease !important;
+    }
+    
+    [data-testid="stSidebarCollapsedControl"]:hover {
+        background: rgba(37, 99, 235, 0.35) !important;
+        border-color: #60A5FA !important;
+        box-shadow: 5px 0 22px rgba(37, 99, 235, 0.65) !important;
+    }
+
+    /* Smooth Main Viewport Auto-Resizing on Sidebar Toggle */
+    section[data-testid="stMain"],
+    section.main,
+    .main .block-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+
+    .main .block-container {
+        padding-top: 1.5rem !important;
+        padding-bottom: 3rem !important;
+        padding-left: 2.2rem !important;
+        padding-right: 2.2rem !important;
+    }
+
+    /* When sidebar is collapsed/hidden, dynamically adjust padding for full-bleed feel */
+    [data-testid="stSidebar"][aria-expanded="false"] ~ section[data-testid="stMain"] .block-container,
+    [data-testid="stSidebar"][aria-expanded="false"] ~ section.main .block-container {
+        padding-left: 3.8rem !important;
+        padding-right: 3.8rem !important;
     }
 
     /* Fix Expander in Sidebar so text and icon never overlap */
@@ -270,7 +387,7 @@ def _inject_custom_css():
         gap: 0.6rem !important;
         padding: 0.6rem 0.75rem !important;
         line-height: 1.35 !important;
-        background: rgba(16, 15, 31, 0.65) !important;
+        background: rgba(10, 17, 36, 0.65) !important;
         border-radius: 6px !important;
         border: 1px solid rgba(255, 255, 255, 0.09) !important;
         margin-top: 0.6rem !important;
@@ -278,7 +395,7 @@ def _inject_custom_css():
     }
     
     details summary:hover {
-        border-color: rgba(139, 92, 246, 0.45) !important;
+        border-color: rgba(37, 99, 235, 0.5) !important;
     }
     
     details summary p {
@@ -288,28 +405,28 @@ def _inject_custom_css():
         white-space: normal !important;
     }
     
-    /* Hero Banner with purple digital scanline wave */
+    /* Hero Banner with Cobalt Digital Wave Gradient */
     .hero-container {
         position: relative;
         overflow: hidden;
         background: 
-            radial-gradient(110% 120% at 50% 0%, rgba(139, 92, 246, 0.38) 0%, rgba(91, 33, 182, 0.22) 35%, rgba(6, 6, 12, 0.98) 75%),
-            repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.035) 0px, rgba(255, 255, 255, 0.035) 1px, transparent 1px, transparent 5px),
-            linear-gradient(180deg, #100D22 0%, #06060C 100%);
-        border: 1px solid rgba(139, 92, 246, 0.35);
+            radial-gradient(110% 120% at 50% 0%, rgba(37, 99, 235, 0.42) 0%, rgba(30, 64, 175, 0.22) 35%, rgba(4, 7, 17, 0.98) 75%),
+            repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.032) 0px, rgba(255, 255, 255, 0.032) 1px, transparent 1px, transparent 5px),
+            linear-gradient(180deg, #0A142F 0%, #040711 100%);
+        border: 1px solid rgba(37, 99, 235, 0.38);
         border-radius: 10px;
         padding: 2.8rem 2.2rem 2rem 2.2rem;
         margin-bottom: 2rem;
-        box-shadow: 0 16px 40px -12px rgba(124, 58, 237, 0.35);
+        box-shadow: 0 16px 45px -12px rgba(37, 99, 235, 0.38);
     }
     
     .hero-badge {
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        background: rgba(139, 92, 246, 0.16);
-        border: 1px solid rgba(167, 139, 250, 0.4);
-        color: #DDD6FE;
+        background: rgba(37, 99, 235, 0.16);
+        border: 1px solid rgba(96, 165, 250, 0.45);
+        color: #BFDBFE;
         font-size: 0.72rem !important;
         font-weight: 700;
         letter-spacing: 0.08em;
@@ -352,7 +469,7 @@ def _inject_custom_css():
 
     /* Telemetry grid cards */
     .metric-grid-card {
-        background: rgba(16, 15, 31, 0.75);
+        background: rgba(10, 17, 36, 0.75);
         border: 1px solid rgba(255, 255, 255, 0.09);
         border-radius: 8px;
         padding: 1.15rem 1.3rem;
@@ -362,13 +479,13 @@ def _inject_custom_css():
     }
     
     .metric-grid-card:hover {
-        border-color: rgba(139, 92, 246, 0.5);
+        border-color: rgba(37, 99, 235, 0.55);
         transform: translateY(-2px);
     }
     
     .card-tag {
         font-size: 0.68rem !important;
-        color: #A78BFA;
+        color: #60A5FA;
         letter-spacing: 0.06em;
         text-transform: uppercase;
         margin-bottom: 0.4rem;
@@ -399,17 +516,17 @@ def _inject_custom_css():
     }
     
     .risk-banner.high {
-        background: linear-gradient(135deg, rgba(239, 68, 68, 0.18) 0%, rgba(15, 12, 25, 0.8) 100%);
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.18) 0%, rgba(10, 17, 36, 0.85) 100%);
         border-color: rgba(239, 68, 68, 0.45);
     }
     
     .risk-banner.med {
-        background: linear-gradient(135deg, rgba(245, 158, 11, 0.18) 0%, rgba(15, 12, 25, 0.8) 100%);
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.18) 0%, rgba(10, 17, 36, 0.85) 100%);
         border-color: rgba(245, 158, 11, 0.45);
     }
     
     .risk-banner.low {
-        background: linear-gradient(135deg, rgba(16, 185, 129, 0.18) 0%, rgba(15, 12, 25, 0.8) 100%);
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.18) 0%, rgba(10, 17, 36, 0.85) 100%);
         border-color: rgba(16, 185, 129, 0.45);
     }
 
@@ -420,6 +537,15 @@ def _inject_custom_css():
         letter-spacing: 0.05em;
         border-radius: 4px !important;
         padding: 0.55rem 1rem !important;
+        background: linear-gradient(180deg, #2563EB 0%, #1D4ED8 100%) !important;
+        border: 1px solid #3B82F6 !important;
+        color: #FFFFFF !important;
+        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3) !important;
+    }
+    .stButton>button:hover {
+        background: linear-gradient(180deg, #3B82F6 0%, #2563EB 100%) !important;
+        border-color: #60A5FA !important;
+        box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5) !important;
     }
     
     /* Tabs styling */
