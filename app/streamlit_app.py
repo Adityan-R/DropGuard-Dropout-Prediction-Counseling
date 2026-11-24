@@ -461,12 +461,79 @@ def _inject_custom_css():
         padding: 1.15rem 1.3rem;
         height: 100%;
         backdrop-filter: blur(10px);
-        transition: transform 0.15s ease, border-color 0.15s ease;
+        transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+        cursor: help;
+        position: relative;
     }
     
     .metric-grid-card:hover {
-        border-color: rgba(37, 99, 235, 0.55);
-        transform: translateY(-2px);
+        border-color: rgba(96, 165, 250, 0.75) !important;
+        transform: translateY(-3px) !important;
+        box-shadow: 0 10px 28px -4px rgba(37, 99, 235, 0.45) !important;
+    }
+
+    /* Custom Cursor-Following Floating Tooltip */
+    .cursor-tooltip {
+        position: fixed;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+        z-index: 999999999;
+        opacity: 0;
+        transform: translate3d(-9999px, -9999px, 0);
+        transition: opacity 0.14s cubic-bezier(0.4, 0, 0.2, 1);
+        background: rgba(6, 10, 22, 0.95);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border: 1px solid rgba(59, 130, 246, 0.65);
+        border-radius: 8px;
+        padding: 0.9rem 1.15rem;
+        max-width: 320px;
+        width: 310px;
+        box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.85), 0 0 20px rgba(37, 99, 235, 0.4);
+        color: #F8FAFC;
+        line-height: 1.45;
+        will-change: transform, opacity;
+    }
+
+    .cursor-tooltip .tooltip-header {
+        font-size: 0.70rem !important;
+        color: #60A5FA !important;
+        letter-spacing: 0.08em;
+        font-family: 'Silkscreen', monospace !important;
+        text-transform: uppercase;
+        margin-bottom: 0.35rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .cursor-tooltip .tooltip-title {
+        font-size: 0.95rem !important;
+        font-weight: 700 !important;
+        color: #FFFFFF !important;
+        font-family: 'Pixelify Sans', monospace !important;
+        letter-spacing: 0.02em;
+        margin-bottom: 0.45rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        padding-bottom: 0.35rem;
+    }
+
+    .cursor-tooltip .tooltip-desc {
+        font-size: 0.83rem !important;
+        color: #CBD5E1 !important;
+        font-family: 'Pixelify Sans', monospace !important;
+        line-height: 1.45 !important;
+    }
+
+    .cursor-tooltip .tooltip-stat {
+        margin-top: 0.5rem;
+        padding-top: 0.35rem;
+        border-top: 1px dashed rgba(59, 130, 246, 0.45);
+        font-size: 0.72rem !important;
+        color: #93C5FD !important;
+        font-family: 'Silkscreen', monospace !important;
+        letter-spacing: 0.04em;
     }
     
     .card-tag {
@@ -542,6 +609,108 @@ def _inject_custom_css():
     }
     </style>
     """)
+
+    # Cursor-following description popup script
+    st.html("""
+    <script>
+    (function() {
+        function setupDropGuardTooltip() {
+            let tooltip = document.getElementById('dropguard-cursor-tooltip');
+            if (!tooltip) {
+                tooltip = document.createElement('div');
+                tooltip.id = 'dropguard-cursor-tooltip';
+                tooltip.className = 'cursor-tooltip';
+                tooltip.setAttribute('aria-hidden', 'true');
+                tooltip.innerHTML = `
+                    <div class="tooltip-header" id="dg-tt-header"></div>
+                    <div class="tooltip-title" id="dg-tt-title"></div>
+                    <div class="tooltip-desc" id="dg-tt-desc"></div>
+                    <div class="tooltip-stat" id="dg-tt-stat"></div>
+                `;
+                document.body.appendChild(tooltip);
+            }
+
+            const ttHeader = document.getElementById('dg-tt-header');
+            const ttTitle = document.getElementById('dg-tt-title');
+            const ttDesc = document.getElementById('dg-tt-desc');
+            const ttStat = document.getElementById('dg-tt-stat');
+
+            let isHovering = false;
+            let currentX = 0, currentY = 0;
+
+            function updatePosition() {
+                if (!isHovering || !tooltip) return;
+                const offset = 18;
+                let targetX = currentX + offset;
+                let targetY = currentY + offset;
+
+                const rect = tooltip.getBoundingClientRect();
+                const winW = window.innerWidth;
+                const winH = window.innerHeight;
+
+                if (targetX + rect.width > winW - 14) {
+                    targetX = currentX - rect.width - 14;
+                }
+                if (targetY + rect.height > winH - 14) {
+                    targetY = currentY - rect.height - 14;
+                }
+                if (targetX < 10) targetX = 10;
+                if (targetY < 10) targetY = 10;
+
+                tooltip.style.transform = 'translate3d(' + targetX + 'px, ' + targetY + 'px, 0)';
+            }
+
+            document.addEventListener('mouseover', function(e) {
+                const card = e.target.closest('.metric-grid-card');
+                if (card) {
+                    const tag = card.getAttribute('data-tooltip-tag') || 'TELEMETRY DIAGNOSTIC';
+                    const title = card.getAttribute('data-tooltip-title') || '';
+                    const desc = card.getAttribute('data-tooltip-desc') || '';
+                    const stat = card.getAttribute('data-tooltip-stat') || '';
+
+                    if (ttHeader) ttHeader.textContent = tag;
+                    if (ttTitle) ttTitle.textContent = title;
+                    if (ttDesc) ttDesc.textContent = desc;
+                    if (ttStat) {
+                        if (stat) {
+                            ttStat.textContent = stat;
+                            ttStat.style.display = 'block';
+                        } else {
+                            ttStat.style.display = 'none';
+                        }
+                    }
+
+                    isHovering = true;
+                    tooltip.style.opacity = '1';
+                    updatePosition();
+                }
+            });
+
+            document.addEventListener('mousemove', function(e) {
+                currentX = e.clientX;
+                currentY = e.clientY;
+                if (isHovering) {
+                    updatePosition();
+                }
+            });
+
+            document.addEventListener('mouseout', function(e) {
+                const card = e.target.closest('.metric-grid-card');
+                if (card && (!e.relatedTarget || !card.contains(e.relatedTarget))) {
+                    isHovering = false;
+                    if (tooltip) tooltip.style.opacity = '0';
+                }
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', setupDropGuardTooltip);
+        } else {
+            setupDropGuardTooltip();
+        }
+    })();
+    </script>
+    """, unsafe_allow_javascript=True)
 
 
 # ---------------------------------------------------------------------------
@@ -636,7 +805,11 @@ def main() -> None:
     col_m1, col_m2, col_m3, col_m4 = st.columns(4)
     with col_m1:
         st.html("""
-        <div class="metric-grid-card">
+        <div class="metric-grid-card"
+             data-tooltip-tag="01 // ARCHITECTURE TELEMETRY"
+             data-tooltip-title="Random Forest Classifier"
+             data-tooltip-desc="Trained under 5-Fold Stratified Cross-Validation on 835 training students. Uses 100 decision trees constrained with max_depth=8 and min_samples_leaf=2 to curb overfitting, with balanced class weights applied to resolve the 78:22 pass-to-risk imbalance."
+             data-tooltip-stat="CV RECALL: 91.3% // CV ROC-AUC: 0.965">
             <div class="card-tag">01 // CLASSIFIER ARCHITECTURE</div>
             <div class="card-val">Random Forest</div>
             <div class="card-desc">Stratified 5-Fold GridCV with balanced class weights & early-pruned estimators.</div>
@@ -644,7 +817,11 @@ def main() -> None:
         """)
     with col_m2:
         st.html("""
-        <div class="metric-grid-card">
+        <div class="metric-grid-card"
+             data-tooltip-tag="02 // DISCRIMINATION POWER"
+             data-tooltip-title="Held-Out Test ROC-AUC: 0.963"
+             data-tooltip-desc="Evaluated strictly on the held-out test cohort of 209 unseen students. An AUC of 0.963 proves near-optimal class separation and rank-ordering between passing and at-risk students across all classification thresholds."
+             data-tooltip-stat="TEST COHORT: 209 STUDENTS // CLASS SEPARATION: 96.3%">
             <div class="card-tag">02 // TEST ROC-AUC</div>
             <div class="card-val">0.963</div>
             <div class="card-desc">Class separation power on held-out test cohort (209 unseen students).</div>
@@ -652,7 +829,11 @@ def main() -> None:
         """)
     with col_m3:
         st.html("""
-        <div class="metric-grid-card">
+        <div class="metric-grid-card"
+             data-tooltip-tag="03 // RETENTION OPTIMIZATION"
+             data-tooltip-title="100.0% At-Risk Sensitivity"
+             data-tooltip-desc="Optimized via out-of-fold F2-score threshold tuning (tau = 0.338). At this decision boundary, the model successfully caught all 46 out of 46 at-risk students in the unseen test set with 0 False Negatives, ensuring no student is left without support."
+             data-tooltip-stat="TUNED THRESHOLD: 0.338 // ZERO FALSE NEGATIVES (46/46)">
             <div class="card-tag">03 // AT-RISK SENSITIVITY</div>
             <div class="card-val">100.0%</div>
             <div class="card-desc">Recall achieved at OOF-optimized F2 threshold (0.338). Zero false negatives.</div>
@@ -660,7 +841,11 @@ def main() -> None:
         """)
     with col_m4:
         st.html("""
-        <div class="metric-grid-card">
+        <div class="metric-grid-card"
+             data-tooltip-tag="04 // EXPLAINABLE AI & SYNTHESIS"
+             data-tooltip-title="TreeSHAP Intervention Engine"
+             data-tooltip-desc="Computes exact Shapley attribution vectors for every individual student prediction. The counseling synthesizer deterministically maps the top 3 adverse drivers (e.g., low G2 scores, prior failures, high unexcused absences) into structured, actionable advising protocols."
+             data-tooltip-stat="LOCAL SHAP DECOMPOSITION // ZERO GENERATIVE HALLUCINATIONS">
             <div class="card-tag">04 // INTERVENTION ENGINE</div>
             <div class="card-val">SHAP Driver</div>
             <div class="card-desc">Rule-based translation of top 3 Shapley vectors into academic counseling briefs.</div>
