@@ -183,9 +183,9 @@ def cross_validate_model(
 
     scoring = {
         "accuracy": "accuracy",
-        "precision": "precision_macro",
-        "recall": "recall_macro",
-        "f1": "f1_macro",
+        "precision": "precision",
+        "recall": "recall",
+        "f1": "f1",
         "roc_auc": "roc_auc",
     }
 
@@ -396,7 +396,7 @@ def train_and_save(config: dict) -> None:
     df = create_labels(df, config)
     df = clean_data(df, config)
 
-    X, y = get_features_and_target(df, config, include_grades=False)
+    X, y = get_features_and_target(df, config, include_grades=True)
 
     logger.info(
         "Dataset: %d rows, %d features | class distribution: %s",

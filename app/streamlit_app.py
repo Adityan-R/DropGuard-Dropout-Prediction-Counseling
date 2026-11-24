@@ -17,8 +17,9 @@ from pathlib import Path
 # Project root resolution - must come before any local imports
 # ---------------------------------------------------------------------------
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT / "src"))
+SRC_PATH = str(PROJECT_ROOT / "src")
+if SRC_PATH not in sys.path:
+    sys.path.insert(0, SRC_PATH)
 
 # ---------------------------------------------------------------------------
 # Third-party / stdlib imports with graceful fallback
@@ -51,6 +52,8 @@ except ImportError:
 # ---------------------------------------------------------------------------
 try:
     from dropguard import data as _data_mod
+    from dropguard import counseling as _counseling_mod
+    from dropguard import explain as _explain_mod
     _LOCAL_IMPORTS_OK = True
 except ImportError as _local_err:
     _LOCAL_IMPORTS_OK = False
@@ -165,57 +168,6 @@ def _shap_bar_chart(
 
 
 # ---------------------------------------------------------------------------
-# Counseling note builder
-# ---------------------------------------------------------------------------
-
-def _counseling_note(prob: float, student: dict) -> str:
-    """Return a markdown-formatted counseling recommendation."""
-    risk_pct = int(prob * 100)
-    lines: list[str] = [f"### 📋 Counseling Note\n"]
-
-    if prob >= 0.7:
-        lines.append(
-            f"**High risk ({risk_pct}%)** - Immediate intervention recommended.\n"
-        )
-        lines.append("**Suggested actions:**")
-        lines.append("- Schedule a meeting with the student's academic advisor this week.")
-        lines.append("- Review attendance patterns - absences may be a key driver.")
-        if student.get("failures", 0) > 0:
-            lines.append(
-                f"- Note {student['failures']} prior course failure(s); "
-                "consider remedial support or tutoring."
-            )
-        if student.get("studytime", 2) <= 1:
-            lines.append("- Low study time reported; discuss time management strategies.")
-        if student.get("higher", "yes") == "no":
-            lines.append(
-                "- Student has not expressed intent for higher education; "
-                "career counseling may help motivate engagement."
-            )
-    elif prob >= 0.4:
-        lines.append(
-            f"**Moderate risk ({risk_pct}%)** - Proactive check-in advised.\n"
-        )
-        lines.append("**Suggested actions:**")
-        lines.append("- Send a friendly check-in email and offer office hours.")
-        lines.append("- Monitor grade trajectory over the next two weeks.")
-        if student.get("goout", 3) >= 4:
-            lines.append("- High social activity noted; ensure it doesn't interfere with study.")
-        if student.get("Walc", 1) >= 3:
-            lines.append(
-                "- Weekend alcohol consumption may be elevated; "
-                "wellness resources are available."
-            )
-    else:
-        lines.append(f"**Low risk ({risk_pct}%)** - Student appears to be on track.\n")
-        lines.append("**Suggested actions:**")
-        lines.append("- Routine check-in at mid-semester.")
-        lines.append("- Encourage participation in enrichment activities.")
-
-    return "\n".join(lines)
-
-
-# ---------------------------------------------------------------------------
 # App layout
 # ---------------------------------------------------------------------------
 
@@ -267,55 +219,48 @@ def main() -> None:
         with st.sidebar:
             st.header("🔎 Student Profile")
             with st.form("student_form"):
-                st.subheader("Demographics")
-                school    = st.selectbox("School",    ["GP", "MS"],           index=0)
-                sex       = st.selectbox("Sex",       ["F", "M"],             index=0)
-                age       = st.slider(  "Age",        15, 22, 17)
-                address   = st.selectbox("Address",   ["U", "R"],             index=0)
-                famsize   = st.selectbox("Family size", ["GT3", "LE3"],       index=0)
-                Pstatus   = st.selectbox("Parent status", ["T", "A"],         index=0)
+                st.caption("Quick inputs (most influential). The rest use sensible defaults.")
 
-                st.subheader("Parents' Education")
-                Medu = st.slider("Mother's education (0-4)", 0, 4, 2)
-                Fedu = st.slider("Father's education (0-4)", 0, 4, 2)
+                col1, col2 = st.columns(2)
+                with col1:
+                    sex = st.selectbox("Sex", ["F", "M"], index=0)
+                    age = st.slider("Age", 15, 22, 17)
+                    G1 = st.slider("Period 1 grade (0-20)", 0, 20, 10)
+                    studytime = st.slider("Weekly study time (1-4)", 1, 4, 2)
+                with col2:
+                    course = st.selectbox("Course", ["math", "portuguese"], index=1)
+                    G2 = st.slider("Period 2 grade (0-20)", 0, 20, 10)
+                    absences = st.slider("Absences", 0, 93, 4)
+                    failures = st.slider("Past failures", 0, 3, 0)
 
-                st.subheader("Family Background")
-                _jobs = ["teacher", "health", "services", "at_home", "other"]
-                Mjob     = st.selectbox("Mother's job", _jobs, index=4)
-                Fjob     = st.selectbox("Father's job", _jobs, index=4)
-                guardian = st.selectbox("Guardian", ["mother", "father", "other"], index=0)
-                reason   = st.selectbox(
-                    "Reason for choosing this school",
-                    ["home", "reputation", "course", "other"],
-                    index=2,
-                )
+                higher = st.selectbox("Wants higher education", ["yes", "no"], index=0)
 
-                st.subheader("School & Study")
-                traveltime = st.slider("Travel time (1-4)",  1, 4, 1)
-                studytime  = st.slider("Weekly study time (1-4)", 1, 4, 2)
-                failures   = st.slider("Past class failures", 0, 3, 0)
-                schoolsup  = st.selectbox("School extra support", ["yes", "no"], index=1)
-                famsup     = st.selectbox("Family support",        ["yes", "no"], index=0)
-                paid       = st.selectbox("Extra paid classes",    ["yes", "no"], index=1)
-                activities = st.selectbox("Extra-curricular activities", ["yes", "no"], index=0)
-                nursery    = st.selectbox("Attended nursery",      ["yes", "no"], index=0)
-                higher     = st.selectbox("Wants higher education", ["yes", "no"], index=0)
-                internet   = st.selectbox("Internet at home",      ["yes", "no"], index=0)
-                romantic   = st.selectbox("In a romantic relationship", ["yes", "no"], index=1)
-
-                st.subheader("Lifestyle")
-                famrel   = st.slider("Family relationship quality (1-5)", 1, 5, 4)
-                freetime = st.slider("Free time after school (1-5)",      1, 5, 3)
-                goout    = st.slider("Going out with friends (1-5)",      1, 5, 3)
-                Dalc     = st.slider("Workday alcohol use (1-5)",         1, 5, 1)
-                Walc     = st.slider("Weekend alcohol use (1-5)",         1, 5, 1)
-                health   = st.slider("Current health status (1-5)",       1, 5, 3)
-                absences = st.slider("Number of school absences",         0, 93, 4)
-
-                st.subheader("Grades & Course")
-                G1     = st.slider("Period 1 grade (0-20)", 0, 20, 10)
-                G2     = st.slider("Period 2 grade (0-20)", 0, 20, 10)
-                course = st.selectbox("Course", ["math", "portuguese"], index=1)
+                with st.expander("Advanced details", expanded=False):
+                    school = st.selectbox("School", ["GP", "MS"], index=0)
+                    address = st.selectbox("Address", ["U", "R"], index=0)
+                    famsize = st.selectbox("Family size", ["GT3", "LE3"], index=0)
+                    Pstatus = st.selectbox("Parent status", ["T", "A"], index=0)
+                    Medu = st.slider("Mother's education (0-4)", 0, 4, 2)
+                    Fedu = st.slider("Father's education (0-4)", 0, 4, 2)
+                    _jobs = ["teacher", "health", "services", "at_home", "other"]
+                    Mjob = st.selectbox("Mother's job", _jobs, index=4)
+                    Fjob = st.selectbox("Father's job", _jobs, index=4)
+                    guardian = st.selectbox("Guardian", ["mother", "father", "other"], index=0)
+                    reason = st.selectbox("Reason for school", ["home", "reputation", "course", "other"], index=2)
+                    traveltime = st.slider("Travel time (1-4)", 1, 4, 1)
+                    schoolsup = st.selectbox("School extra support", ["yes", "no"], index=1)
+                    famsup = st.selectbox("Family support", ["yes", "no"], index=0)
+                    paid = st.selectbox("Extra paid classes", ["yes", "no"], index=1)
+                    activities = st.selectbox("Extra-curricular activities", ["yes", "no"], index=0)
+                    nursery = st.selectbox("Attended nursery", ["yes", "no"], index=0)
+                    internet = st.selectbox("Internet at home", ["yes", "no"], index=0)
+                    romantic = st.selectbox("Romantic relationship", ["yes", "no"], index=1)
+                    famrel = st.slider("Family relationship (1-5)", 1, 5, 4)
+                    freetime = st.slider("Free time (1-5)", 1, 5, 3)
+                    goout = st.slider("Going out (1-5)", 1, 5, 3)
+                    Dalc = st.slider("Workday alcohol (1-5)", 1, 5, 1)
+                    Walc = st.slider("Weekend alcohol (1-5)", 1, 5, 1)
+                    health = st.slider("Health status (1-5)", 1, 5, 3)
 
                 submitted = st.form_submit_button("🎯 Assess Student Risk", type="primary")
 
@@ -420,9 +365,24 @@ def main() -> None:
                             "This may happen with certain model types or versions."
                         )
 
-                # 6. Counseling note
+                # 6. Counseling note (shared with the training pipeline)
                 st.subheader("💬 Counselor Recommendation")
-                note = _counseling_note(prob, raw_input)
+                top_drivers = []
+                try:
+                    feat_names = list(
+                        pipeline.named_steps["preprocessor"].get_feature_names_out()
+                    )
+                    shap_vals, _ = _explain_mod.compute_shap_values(
+                        pipeline, X_student, feat_names
+                    )
+                    top_drivers = _explain_mod.get_top_drivers(
+                        shap_vals[0], feat_names, top_n=3
+                    )
+                except Exception:
+                    top_drivers = []
+                note = _counseling_mod.generate_note(
+                    student_idx=0, probability=prob, top_drivers=top_drivers
+                )
                 st.markdown(note)
 
     # ==================================================================

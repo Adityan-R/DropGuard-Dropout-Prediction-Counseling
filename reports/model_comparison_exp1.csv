@@ -1,0 +1,4 @@
+model,cv_f1_mean,cv_f1_std
+LogisticRegression,0.8329,0.0421
+RandomForest,0.8478,0.0432
+XGBoost,0.8346,0.0575

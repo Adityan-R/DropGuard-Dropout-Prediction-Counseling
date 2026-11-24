@@ -153,9 +153,9 @@ streamlit run app/streamlit_app.py
 
 | Model | CV Recall (mean±std) | CV F1 (mean±std) | CV ROC-AUC (mean±std) |
 |---|---|---|---|
-| Logistic Regression | 0.688 ± 0.049 | 0.686 ± 0.043 | 0.787 ± 0.024 |
-| **Random Forest** ✅ | **0.688 ± 0.049** | **0.848 ± 0.043** | **0.787 ± 0.024** |
-| XGBoost | 0.835 ± 0.058 | 0.835 ± 0.058 | — |
+| Logistic Regression | 0.886 ± 0.039 | 0.796 ± 0.036 | 0.963 ± 0.012 |
+| **Random Forest** ✅ | **0.913 ± 0.039** | **0.817 ± 0.051** | **0.965 ± 0.012** |
+| XGBoost | 0.810 ± 0.081 | 0.819 ± 0.050 | 0.962 ± 0.016 |
 
 > **Selection criterion:** highest recall on the at-risk class (the cost of a missed at-risk student outweighs a false alarm).
 
@@ -163,19 +163,19 @@ streamlit run app/streamlit_app.py
 
 | Metric | Score |
 |---|---|
-| Accuracy | **0.761** |
-| Precision (macro) | **0.667** |
-| Recall (macro) | **0.691** |
-| F1 (macro) | **0.676** |
-| ROC-AUC | **0.800** |
+| Accuracy | **0.900** |
+| Precision (macro) | **0.843** |
+| Recall (macro) | **0.897** |
+| F1 (macro) | **0.865** |
+| ROC-AUC | **0.963** |
 
 **Confusion matrix (test set, threshold = 0.5):**
 
 ```
               Predicted
               Not-Risk  At-Risk
-Actual Not-Risk  133       30
-Actual At-Risk    20       26
+Actual Not-Risk  147       16
+Actual At-Risk     5       41
 ```
 
 ---
@@ -204,10 +204,10 @@ Using the precision-recall curve and maximising F-beta (β=2, favouring recall):
 
 | Threshold | Recall | Precision |
 |---|---|---|
-| Default (0.50) | 0.565 | 0.464 |
-| **Optimal (0.41)** | **0.913** | ~0.30 |
+| Default (0.50) | 0.891 | 0.719 |
+| **Optimal (0.338)** | **1.000** | **0.575** |
 
-At the optimal threshold, the model catches 91% of at-risk students at the cost of more false alarms — an acceptable trade-off for a counseling intervention system where the cost of missing a student is high.
+At the optimal threshold (0.338, tuned via out-of-fold training predictions), the model catches 100% of at-risk students (recall = 1.000, 46/46) at the cost of more false alarms (precision = 0.575) — an acceptable trade-off for a counseling intervention system where the cost of missing an at-risk student is high.
 
 ### 4. Feature Ablation — Early Warning Setting
 
@@ -249,21 +249,19 @@ For each at-risk student the pipeline generates a note mapping their top 3 SHAP 
 
 ```
 ## Student 150 — Risk Level: High
-**Predicted At-Risk Probability:** 0.84
+**Predicted At-Risk Probability:** 0.91
 
 **Key Factors Identified:**
+- G2 (elevated influence) → Schedule additional tutoring sessions and review recent assessments.
+- G1 (elevated influence) → Review first-period performance and identify early stumbling blocks.
 - failures (elevated influence) → Assign a faculty mentor for weekly check-ins.
-- higher (elevated influence) → Discuss the student's goals beyond secondary school
-  and connect them with career and further-education guidance.
-- course (elevated influence) → Provide subject-specific tutoring for this course.
 
 **Recommended Actions:**
-1. Assign a faculty mentor for weekly check-ins.
-2. Discuss the student's goals...
-3. Provide subject-specific tutoring for this course.
+1. Schedule additional tutoring sessions and review recent assessments.
+2. Review first-period performance and identify early stumbling blocks.
+3. Assign a faculty mentor for weekly check-ins.
 
-*Immediate, coordinated support from academic advisors, faculty, and wellness staff
-is encouraged to help this student succeed.*
+*Immediate, coordinated support from academic advisors, faculty, and wellness staff is encouraged to help this student succeed.*
 ```
 
 See [`reports/sample_counseling_notes.md`](reports/sample_counseling_notes.md) for 10 real student notes generated from the test set.

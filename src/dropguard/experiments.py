@@ -37,10 +37,11 @@ from sklearn.metrics import (
     f1_score,
     mean_absolute_error,
     precision_recall_curve,
+    precision_score,
     recall_score,
     roc_auc_score,
 )
-from sklearn.model_selection import cross_val_score, learning_curve, train_test_split
+from sklearn.model_selection import cross_val_predict, cross_val_score, learning_curve, train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from xgboost import XGBClassifier
 
@@ -185,7 +186,7 @@ def experiment_1_model_comparison(
         print(f"  {name}: f1={scores.mean():.4f} ± {scores.std():.4f}")
 
     df_res = pd.DataFrame(rows)
-    csv_path = reports_dir / "model_comparison.csv"
+    csv_path = reports_dir / "model_comparison_exp1.csv"
     df_res.to_csv(csv_path, index=False)
     print(f"  -> {csv_path}")
 
@@ -416,9 +417,13 @@ def experiment_4_threshold_tuning(
     reports_dir: Path,
     figures_dir: Path,
 ) -> None:
-    """Tune decision threshold on the test set to maximise F-beta (beta=2).
+    """Tune decision threshold on out-of-fold training predictions (beta=2).
 
-    Loads the best model from ``models/best_model.joblib``.
+    Loads the best model from ``models/best_model.joblib`` and tunes the
+    threshold on out-of-fold (OOF) predictions over the training set, so the
+    test set is never used for threshold selection. Final metrics are then
+    computed on the held-out test set.
+
     Saves:
     - ``reports/figures/precision_recall_curve.png``
     - ``reports/figures/cm_default_threshold.png``
@@ -441,20 +446,25 @@ def experiment_4_threshold_tuning(
     X, y = _load_data(config)
     X_train, X_test, y_train, y_test = _train_test(X, y, config)
 
+    seed = config["training"]["random_seed"]
+    cv = config["training"]["cv_folds"]
+
     # Load or fallback: train an XGBoost pipeline if no saved model yet
     if model_path.exists():
         best_pipeline = joblib.load(model_path)
     else:
         print("  [warn] best_model.joblib not found - training fresh XGBoost pipeline.")
-        clf = XGBClassifier(verbosity=0, random_state=config["training"]["random_seed"],
-                            eval_metric="logloss")
+        clf = XGBClassifier(verbosity=0, random_state=seed, eval_metric="logloss")
         best_pipeline = build_pipeline(clf, X_train)
         best_pipeline.fit(X_train, y_train)
 
-    y_proba = best_pipeline.predict_proba(X_test)[:, 1]
+    # Out-of-fold probabilities on the training set (no test leakage)
+    oof_proba = cross_val_predict(
+        best_pipeline, X_train, y_train, cv=cv, method="predict_proba"
+    )[:, 1]
 
-    # Precision-Recall curve
-    precisions, recalls, thresholds = precision_recall_curve(y_test, y_proba)
+    # Precision-Recall curve on OOF predictions
+    precisions, recalls, thresholds = precision_recall_curve(y_train, oof_proba)
     pr_auc = auc(recalls, precisions)
 
     fig, ax = plt.subplots(figsize=(8, 5))
@@ -462,7 +472,7 @@ def experiment_4_threshold_tuning(
             label=f"PR curve (AUC={pr_auc:.3f})")
     ax.set_xlabel("Recall")
     ax.set_ylabel("Precision")
-    ax.set_title("Experiment 4 - Precision-Recall Curve")
+    ax.set_title("Experiment 4 - Precision-Recall Curve (OOF train)")
     ax.legend()
     plt.tight_layout()
     pr_path = figures_dir / "precision_recall_curve.png"
@@ -470,9 +480,8 @@ def experiment_4_threshold_tuning(
     plt.close(fig)
     print(f"  -> {pr_path}")
 
-    # Find threshold maximising F-beta (beta=2)
+    # Find threshold maximising F-beta (beta=2) on OOF predictions
     beta = 2.0
-    # thresholds is one element shorter than precisions/recalls
     p_cut = precisions[:-1]
     r_cut = recalls[:-1]
     fb_scores = _fbeta_score(p_cut, r_cut, beta)
@@ -480,6 +489,9 @@ def experiment_4_threshold_tuning(
     best_threshold = float(thresholds[best_idx])
     best_fb = float(fb_scores[best_idx])
     print(f"  Optimal threshold: {best_threshold:.4f} (F{beta}={best_fb:.4f})")
+
+    # Test-set probabilities from the deployed model
+    y_proba = best_pipeline.predict_proba(X_test)[:, 1]
 
     # Confusion matrix at default threshold (0.5)
     y_pred_default = (y_proba >= 0.5).astype(int)
@@ -510,15 +522,15 @@ def experiment_4_threshold_tuning(
     print(f"  -> {cm_opt_path}")
 
     # JSON results
+    precision_default = float(precision_score(y_test, y_pred_default, zero_division=0))
     results = {
         "best_threshold": round(best_threshold, 6),
         f"f{int(beta)}_at_best_threshold": round(best_fb, 6),
-        "pr_auc": round(pr_auc, 6),
+        "pr_auc": round(float(pr_auc), 6),
         "recall_at_default": round(float(recall_score(y_test, y_pred_default)), 6),
         "recall_at_optimal": round(float(recall_score(y_test, y_pred_opt)), 6),
-        "precision_at_default": round(float(precisions[np.searchsorted(thresholds, 0.5, side="right")
-                                                         if 0.5 <= thresholds[-1] else -1]), 6)
-        if len(thresholds) > 0 else None,
+        "precision_at_default": round(precision_default, 6),
+        "tuned_on": "out_of_fold_train",
     }
     json_path = reports_dir / "threshold_results.json"
     with open(json_path, "w") as fh:
