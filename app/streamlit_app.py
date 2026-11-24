@@ -309,24 +309,48 @@ def _inject_custom_css():
     /* ========================================================= */
     /* SIDEBAR PINNED EDGE ARROW & RESPONSIVE MAIN PAGE RESIZING */
     /* ========================================================= */
-    [data-testid="stSidebar"] {
-        min-width: 350px !important;
-        max-width: 390px !important;
-        background-color: #080D1A !important;
-        border-right: 1px solid rgba(37, 99, 235, 0.3) !important;
+
+    /* Sidebar Collapsed State: Zero width to completely eliminate left gap */
+    [data-testid="stSidebar"][data-collapsed="true"],
+    [data-testid="stSidebar"][aria-expanded="false"],
+    section[data-testid="stSidebar"]:has([data-collapsed="true"]) {
+        min-width: 0px !important;
+        max-width: 0px !important;
+        width: 0px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border: none !important;
+        display: none !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
     }
 
-    /* Position the collapse toggle right on the upper-right edge of the sidebar */
+    /* Sidebar Expanded State: Responsive width with cobalt border */
+    [data-testid="stSidebar"]:not([data-collapsed="true"]):not([aria-expanded="false"]) {
+        min-width: 330px !important;
+        max-width: 375px !important;
+        background-color: #080D1A !important;
+        border-right: 1px solid rgba(37, 99, 235, 0.3) !important;
+        visibility: visible !important;
+    }
+
+    /* Top sidebar header: keep collapse button flush to the top-right edge */
+    [data-testid="stSidebarHeader"] {
+        display: flex !important;
+        justify-content: flex-end !important;
+        align-items: center !important;
+        padding: 10px 14px 6px 14px !important;
+        background: transparent !important;
+    }
+
+    /* Pinned Collapse Button (when sidebar is open): top-right edge of sidebar */
     [data-testid="stSidebarCollapseButton"] {
-        position: absolute !important;
-        top: 14px !important;
-        right: 10px !important;
-        z-index: 1000 !important;
+        margin-left: auto !important;
         background: rgba(10, 17, 36, 0.95) !important;
         border: 1px solid rgba(37, 99, 235, 0.5) !important;
         border-radius: 4px !important;
         color: #60A5FA !important;
-        padding: 4px !important;
+        padding: 4px 6px !important;
         transition: all 0.2s ease !important;
     }
     
@@ -336,48 +360,53 @@ def _inject_custom_css():
         box-shadow: 0 0 12px rgba(37, 99, 235, 0.6) !important;
     }
 
-    /* Pinned expand tab right on the left screen edge when sidebar is hidden */
-    [data-testid="stSidebarCollapsedControl"] {
+    /* Pinned Expand Button (when sidebar is closed): flush to left screen edge */
+    [data-testid="stExpandSidebarButton"] {
         position: fixed !important;
-        top: 14px !important;
-        left: 0px !important;
-        z-index: 99999 !important;
+        top: 12px !important;
+        left: 8px !important;
+        z-index: 999999 !important;
         background: rgba(10, 17, 36, 0.95) !important;
-        border: 1px solid rgba(37, 99, 235, 0.55) !important;
-        border-left: none !important;
-        border-radius: 0 6px 6px 0 !important;
-        padding: 5px 8px !important;
-        box-shadow: 3px 0 16px rgba(37, 99, 235, 0.4) !important;
+        border: 1px solid rgba(37, 99, 235, 0.6) !important;
+        border-radius: 4px !important;
+        color: #60A5FA !important;
+        padding: 4px 7px !important;
+        box-shadow: 0 0 16px rgba(37, 99, 235, 0.5) !important;
         transition: all 0.2s ease !important;
     }
     
-    [data-testid="stSidebarCollapsedControl"]:hover {
+    [data-testid="stExpandSidebarButton"]:hover {
         background: rgba(37, 99, 235, 0.35) !important;
-        border-color: #60A5FA !important;
-        box-shadow: 5px 0 22px rgba(37, 99, 235, 0.65) !important;
+        border-color: #93C5FD !important;
+        box-shadow: 0 0 20px rgba(37, 99, 235, 0.8) !important;
+        transform: scale(1.05);
     }
 
     /* Smooth Main Viewport Auto-Resizing on Sidebar Toggle */
     section[data-testid="stMain"],
     section.main,
+    .stMain,
+    div[data-testid="stMainBlockContainer"],
     .main .block-container {
         width: 100% !important;
         max-width: 100% !important;
+        box-sizing: border-box !important;
         transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
 
     .main .block-container {
         padding-top: 1.5rem !important;
         padding-bottom: 3rem !important;
-        padding-left: 2.2rem !important;
-        padding-right: 2.2rem !important;
+        padding-left: 2rem !important;
+        padding-right: 2rem !important;
     }
 
-    /* When sidebar is collapsed/hidden, dynamically adjust padding for full-bleed feel */
+    /* When sidebar is collapsed/hidden, dynamically adjust padding for edge-to-edge layout */
+    [data-testid="stSidebar"][data-collapsed="true"] ~ section[data-testid="stMain"] .block-container,
     [data-testid="stSidebar"][aria-expanded="false"] ~ section[data-testid="stMain"] .block-container,
-    [data-testid="stSidebar"][aria-expanded="false"] ~ section.main .block-container {
-        padding-left: 3.8rem !important;
-        padding-right: 3.8rem !important;
+    [data-collapsed="true"] ~ div section[data-testid="stMain"] .block-container {
+        padding-left: 3.2rem !important;
+        padding-right: 2.2rem !important;
     }
 
     /* Fix Expander in Sidebar so text and icon never overlap */
