@@ -307,31 +307,49 @@ def _inject_custom_css():
     }
 
     /* ========================================================= */
-    /* SIDEBAR PINNED EDGE ARROW & RESPONSIVE MAIN PAGE RESIZING */
+    /* SIDEBAR SLIDING ANIMATION & HOMEPAGE FLUID RESIZING       */
     /* ========================================================= */
 
-    /* Sidebar Collapsed State: Zero width to completely eliminate left gap */
+    /* Sidebar Base Transitions: hardware-accelerated cubic-bezier curves */
+    [data-testid="stSidebar"] {
+        transition: transform 0.38s cubic-bezier(0.4, 0, 0.2, 1),
+                    margin-left 0.38s cubic-bezier(0.4, 0, 0.2, 1),
+                    width 0.38s cubic-bezier(0.4, 0, 0.2, 1),
+                    min-width 0.38s cubic-bezier(0.4, 0, 0.2, 1),
+                    max-width 0.38s cubic-bezier(0.4, 0, 0.2, 1),
+                    opacity 0.32s ease !important;
+        will-change: transform, margin-left, width;
+    }
+
+    /* Sidebar Collapsed State: Smooth slide-out to the left */
     [data-testid="stSidebar"][data-collapsed="true"],
     [data-testid="stSidebar"][aria-expanded="false"],
     section[data-testid="stSidebar"]:has([data-collapsed="true"]) {
         min-width: 0px !important;
         max-width: 0px !important;
         width: 0px !important;
+        margin-left: -375px !important;
+        transform: translateX(-100%) !important;
         padding: 0 !important;
-        margin: 0 !important;
         border: none !important;
-        display: none !important;
-        visibility: hidden !important;
+        opacity: 0 !important;
         pointer-events: none !important;
+        overflow: hidden !important;
+        visibility: hidden !important;
     }
 
-    /* Sidebar Expanded State: Responsive width with cobalt border */
+    /* Sidebar Expanded State: Smooth slide-in from the left with cobalt edge */
     [data-testid="stSidebar"]:not([data-collapsed="true"]):not([aria-expanded="false"]) {
         min-width: 330px !important;
         max-width: 375px !important;
+        width: 350px !important;
+        margin-left: 0px !important;
+        transform: translateX(0) !important;
+        opacity: 1 !important;
         background-color: #080D1A !important;
         border-right: 1px solid rgba(37, 99, 235, 0.3) !important;
         visibility: visible !important;
+        pointer-events: auto !important;
     }
 
     /* Top sidebar header: keep collapse button flush to the top-right edge */
@@ -351,16 +369,17 @@ def _inject_custom_css():
         border-radius: 4px !important;
         color: #60A5FA !important;
         padding: 4px 6px !important;
-        transition: all 0.2s ease !important;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
     
     [data-testid="stSidebarCollapseButton"]:hover {
         background: rgba(37, 99, 235, 0.3) !important;
         border-color: #60A5FA !important;
         box-shadow: 0 0 12px rgba(37, 99, 235, 0.6) !important;
+        transform: scale(1.05);
     }
 
-    /* Pinned Expand Button (when sidebar is closed): flush to left screen edge */
+    /* Pinned Expand Button (when sidebar is closed): flush to left screen edge with slide-in animation */
     [data-testid="stExpandSidebarButton"] {
         position: fixed !important;
         top: 12px !important;
@@ -372,17 +391,29 @@ def _inject_custom_css():
         color: #60A5FA !important;
         padding: 4px 7px !important;
         box-shadow: 0 0 16px rgba(37, 99, 235, 0.5) !important;
-        transition: all 0.2s ease !important;
+        animation: expandSlideIn 0.32s cubic-bezier(0.4, 0, 0.2, 1) both;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+
+    @keyframes expandSlideIn {
+        from {
+            opacity: 0;
+            transform: translateX(-18px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
     }
     
     [data-testid="stExpandSidebarButton"]:hover {
         background: rgba(37, 99, 235, 0.35) !important;
         border-color: #93C5FD !important;
         box-shadow: 0 0 20px rgba(37, 99, 235, 0.8) !important;
-        transform: scale(1.05);
+        transform: scale(1.08);
     }
 
-    /* Smooth Main Viewport Auto-Resizing on Sidebar Toggle */
+    /* Smooth Homepage Auto-Resizing on Sidebar Toggle */
     section[data-testid="stMain"],
     section.main,
     .stMain,
@@ -391,7 +422,10 @@ def _inject_custom_css():
         width: 100% !important;
         max-width: 100% !important;
         box-sizing: border-box !important;
-        transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        transition: width 0.38s cubic-bezier(0.4, 0, 0.2, 1),
+                    padding 0.38s cubic-bezier(0.4, 0, 0.2, 1),
+                    margin 0.38s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        will-change: width, padding;
     }
 
     .main .block-container {
@@ -399,6 +433,21 @@ def _inject_custom_css():
         padding-bottom: 3rem !important;
         padding-left: 2rem !important;
         padding-right: 2rem !important;
+    }
+
+    /* Fluid interior component expansion transitions */
+    .hero-container {
+        transition: width 0.38s cubic-bezier(0.4, 0, 0.2, 1),
+                    padding 0.38s cubic-bezier(0.4, 0, 0.2, 1),
+                    box-shadow 0.38s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+
+    .metric-grid-card {
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, width 0.38s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+
+    [data-testid="column"] {
+        transition: width 0.38s cubic-bezier(0.4, 0, 0.2, 1), flex 0.38s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
 
     /* When sidebar is collapsed/hidden, dynamically adjust padding for edge-to-edge layout */
