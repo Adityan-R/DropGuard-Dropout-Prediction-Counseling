@@ -453,7 +453,12 @@ def _inject_custom_css():
         color: #F8FAFC;
     }
 
-    /* Telemetry grid cards */
+    /* Telemetry grid cards with floating hover description popups */
+    [data-testid="column"],
+    div:has(> .metric-grid-card) {
+        overflow: visible !important;
+    }
+
     .metric-grid-card {
         background: rgba(10, 17, 36, 0.75);
         border: 1px solid rgba(255, 255, 255, 0.09);
@@ -461,54 +466,110 @@ def _inject_custom_css():
         padding: 1.15rem 1.3rem;
         height: 100%;
         backdrop-filter: blur(10px);
-        transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+        transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s ease, box-shadow 0.2s ease;
         cursor: help;
         position: relative;
     }
     
     .metric-grid-card:hover {
-        border-color: rgba(96, 165, 250, 0.75) !important;
-        transform: translateY(-3px) !important;
-        box-shadow: 0 10px 28px -4px rgba(37, 99, 235, 0.45) !important;
+        border-color: rgba(96, 165, 250, 0.8) !important;
+        transform: translateY(-4px) !important;
+        box-shadow: 0 12px 30px -4px rgba(37, 99, 235, 0.5) !important;
     }
 
-    /* Custom Cursor-Following Floating Tooltip */
-    .cursor-tooltip {
-        position: fixed;
-        top: 0;
-        left: 0;
-        pointer-events: none;
-        z-index: 999999999;
+    /* Floating In-Depth Description Box */
+    .metric-grid-card .card-popup {
+        position: absolute;
+        bottom: calc(100% + 14px);
+        width: 320px;
+        background: rgba(6, 10, 22, 0.97) !important;
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
+        border: 1px solid rgba(59, 130, 246, 0.75) !important;
+        border-radius: 8px !important;
+        padding: 0.95rem 1.15rem !important;
+        box-shadow: 0 18px 40px -4px rgba(0, 0, 0, 0.9), 0 0 25px rgba(37, 99, 235, 0.45) !important;
+        color: #F8FAFC !important;
         opacity: 0;
-        transform: translate3d(-9999px, -9999px, 0);
-        transition: opacity 0.14s cubic-bezier(0.4, 0, 0.2, 1);
-        background: rgba(6, 10, 22, 0.95);
-        backdrop-filter: blur(14px);
-        -webkit-backdrop-filter: blur(14px);
-        border: 1px solid rgba(59, 130, 246, 0.65);
-        border-radius: 8px;
-        padding: 0.9rem 1.15rem;
-        max-width: 320px;
-        width: 310px;
-        box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.85), 0 0 20px rgba(37, 99, 235, 0.4);
-        color: #F8FAFC;
-        line-height: 1.45;
-        will-change: transform, opacity;
+        visibility: hidden;
+        pointer-events: none;
+        z-index: 99999999 !important;
+        transition: opacity 0.22s cubic-bezier(0.4, 0, 0.2, 1), transform 0.22s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.22s ease !important;
+        text-align: left;
     }
 
-    .cursor-tooltip .tooltip-header {
+    /* Alignment variants to prevent viewport edge clipping */
+    .metric-grid-card.card-pos-left .card-popup {
+        left: 0;
+        transform: translateY(10px);
+    }
+    .metric-grid-card.card-pos-left .card-popup::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 35px;
+        border-width: 7px;
+        border-style: solid;
+        border-color: rgba(59, 130, 246, 0.75) transparent transparent transparent;
+    }
+
+    .metric-grid-card.card-pos-mid .card-popup {
+        left: 50%;
+        transform: translateX(-50%) translateY(10px);
+    }
+    .metric-grid-card.card-pos-mid .card-popup::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border-width: 7px;
+        border-style: solid;
+        border-color: rgba(59, 130, 246, 0.75) transparent transparent transparent;
+    }
+
+    .metric-grid-card.card-pos-right .card-popup {
+        right: 0;
+        left: auto;
+        transform: translateY(10px);
+    }
+    .metric-grid-card.card-pos-right .card-popup::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        right: 35px;
+        border-width: 7px;
+        border-style: solid;
+        border-color: rgba(59, 130, 246, 0.75) transparent transparent transparent;
+    }
+
+    /* On Hover: Trigger Popup smoothly */
+    .metric-grid-card.card-pos-left:hover .card-popup {
+        opacity: 1 !important;
+        visibility: visible !important;
+        transform: translateY(0) !important;
+    }
+    .metric-grid-card.card-pos-mid:hover .card-popup {
+        opacity: 1 !important;
+        visibility: visible !important;
+        transform: translateX(-50%) translateY(0) !important;
+    }
+    .metric-grid-card.card-pos-right:hover .card-popup {
+        opacity: 1 !important;
+        visibility: visible !important;
+        transform: translateY(0) !important;
+    }
+
+    .card-popup .popup-tag {
         font-size: 0.70rem !important;
         color: #60A5FA !important;
         letter-spacing: 0.08em;
         font-family: 'Silkscreen', monospace !important;
         text-transform: uppercase;
         margin-bottom: 0.35rem;
-        display: flex;
-        align-items: center;
-        gap: 0.4rem;
     }
 
-    .cursor-tooltip .tooltip-title {
+    .card-popup .popup-title {
         font-size: 0.95rem !important;
         font-weight: 700 !important;
         color: #FFFFFF !important;
@@ -519,14 +580,14 @@ def _inject_custom_css():
         padding-bottom: 0.35rem;
     }
 
-    .cursor-tooltip .tooltip-desc {
+    .card-popup .popup-desc {
         font-size: 0.83rem !important;
         color: #CBD5E1 !important;
         font-family: 'Pixelify Sans', monospace !important;
         line-height: 1.45 !important;
     }
 
-    .cursor-tooltip .tooltip-stat {
+    .card-popup .popup-stat {
         margin-top: 0.5rem;
         padding-top: 0.35rem;
         border-top: 1px dashed rgba(59, 130, 246, 0.45);
@@ -609,108 +670,6 @@ def _inject_custom_css():
     }
     </style>
     """)
-
-    # Cursor-following description popup script
-    st.html("""
-    <script>
-    (function() {
-        function setupDropGuardTooltip() {
-            let tooltip = document.getElementById('dropguard-cursor-tooltip');
-            if (!tooltip) {
-                tooltip = document.createElement('div');
-                tooltip.id = 'dropguard-cursor-tooltip';
-                tooltip.className = 'cursor-tooltip';
-                tooltip.setAttribute('aria-hidden', 'true');
-                tooltip.innerHTML = `
-                    <div class="tooltip-header" id="dg-tt-header"></div>
-                    <div class="tooltip-title" id="dg-tt-title"></div>
-                    <div class="tooltip-desc" id="dg-tt-desc"></div>
-                    <div class="tooltip-stat" id="dg-tt-stat"></div>
-                `;
-                document.body.appendChild(tooltip);
-            }
-
-            const ttHeader = document.getElementById('dg-tt-header');
-            const ttTitle = document.getElementById('dg-tt-title');
-            const ttDesc = document.getElementById('dg-tt-desc');
-            const ttStat = document.getElementById('dg-tt-stat');
-
-            let isHovering = false;
-            let currentX = 0, currentY = 0;
-
-            function updatePosition() {
-                if (!isHovering || !tooltip) return;
-                const offset = 18;
-                let targetX = currentX + offset;
-                let targetY = currentY + offset;
-
-                const rect = tooltip.getBoundingClientRect();
-                const winW = window.innerWidth;
-                const winH = window.innerHeight;
-
-                if (targetX + rect.width > winW - 14) {
-                    targetX = currentX - rect.width - 14;
-                }
-                if (targetY + rect.height > winH - 14) {
-                    targetY = currentY - rect.height - 14;
-                }
-                if (targetX < 10) targetX = 10;
-                if (targetY < 10) targetY = 10;
-
-                tooltip.style.transform = 'translate3d(' + targetX + 'px, ' + targetY + 'px, 0)';
-            }
-
-            document.addEventListener('mouseover', function(e) {
-                const card = e.target.closest('.metric-grid-card');
-                if (card) {
-                    const tag = card.getAttribute('data-tooltip-tag') || 'TELEMETRY DIAGNOSTIC';
-                    const title = card.getAttribute('data-tooltip-title') || '';
-                    const desc = card.getAttribute('data-tooltip-desc') || '';
-                    const stat = card.getAttribute('data-tooltip-stat') || '';
-
-                    if (ttHeader) ttHeader.textContent = tag;
-                    if (ttTitle) ttTitle.textContent = title;
-                    if (ttDesc) ttDesc.textContent = desc;
-                    if (ttStat) {
-                        if (stat) {
-                            ttStat.textContent = stat;
-                            ttStat.style.display = 'block';
-                        } else {
-                            ttStat.style.display = 'none';
-                        }
-                    }
-
-                    isHovering = true;
-                    tooltip.style.opacity = '1';
-                    updatePosition();
-                }
-            });
-
-            document.addEventListener('mousemove', function(e) {
-                currentX = e.clientX;
-                currentY = e.clientY;
-                if (isHovering) {
-                    updatePosition();
-                }
-            });
-
-            document.addEventListener('mouseout', function(e) {
-                const card = e.target.closest('.metric-grid-card');
-                if (card && (!e.relatedTarget || !card.contains(e.relatedTarget))) {
-                    isHovering = false;
-                    if (tooltip) tooltip.style.opacity = '0';
-                }
-            });
-        }
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', setupDropGuardTooltip);
-        } else {
-            setupDropGuardTooltip();
-        }
-    })();
-    </script>
-    """, unsafe_allow_javascript=True)
 
 
 # ---------------------------------------------------------------------------
@@ -805,50 +764,58 @@ def main() -> None:
     col_m1, col_m2, col_m3, col_m4 = st.columns(4)
     with col_m1:
         st.html("""
-        <div class="metric-grid-card"
-             data-tooltip-tag="01 // ARCHITECTURE TELEMETRY"
-             data-tooltip-title="Random Forest Classifier"
-             data-tooltip-desc="Trained under 5-Fold Stratified Cross-Validation on 835 training students. Uses 100 decision trees constrained with max_depth=8 and min_samples_leaf=2 to curb overfitting, with balanced class weights applied to resolve the 78:22 pass-to-risk imbalance."
-             data-tooltip-stat="CV RECALL: 91.3% // CV ROC-AUC: 0.965">
+        <div class="metric-grid-card card-pos-left">
             <div class="card-tag">01 // CLASSIFIER ARCHITECTURE</div>
             <div class="card-val">Random Forest</div>
             <div class="card-desc">Stratified 5-Fold GridCV with balanced class weights & early-pruned estimators.</div>
+            <div class="card-popup">
+                <div class="popup-tag">01 // ARCHITECTURE TELEMETRY</div>
+                <div class="popup-title">Random Forest Classifier</div>
+                <div class="popup-desc">Trained under 5-Fold Stratified Cross-Validation on 835 training students. Uses 100 decision trees constrained with max_depth=8 and min_samples_leaf=2 to curb overfitting, with balanced class weights applied to resolve the 78:22 pass-to-risk imbalance.</div>
+                <div class="popup-stat">CV RECALL: 91.3% // CV ROC-AUC: 0.965</div>
+            </div>
         </div>
         """)
     with col_m2:
         st.html("""
-        <div class="metric-grid-card"
-             data-tooltip-tag="02 // DISCRIMINATION POWER"
-             data-tooltip-title="Held-Out Test ROC-AUC: 0.963"
-             data-tooltip-desc="Evaluated strictly on the held-out test cohort of 209 unseen students. An AUC of 0.963 proves near-optimal class separation and rank-ordering between passing and at-risk students across all classification thresholds."
-             data-tooltip-stat="TEST COHORT: 209 STUDENTS // CLASS SEPARATION: 96.3%">
+        <div class="metric-grid-card card-pos-mid">
             <div class="card-tag">02 // TEST ROC-AUC</div>
             <div class="card-val">0.963</div>
             <div class="card-desc">Class separation power on held-out test cohort (209 unseen students).</div>
+            <div class="card-popup">
+                <div class="popup-tag">02 // DISCRIMINATION POWER</div>
+                <div class="popup-title">Held-Out Test ROC-AUC: 0.963</div>
+                <div class="popup-desc">Evaluated strictly on the held-out test cohort of 209 unseen students. An AUC of 0.963 proves near-optimal class separation and rank-ordering between passing and at-risk students across all classification thresholds.</div>
+                <div class="popup-stat">TEST COHORT: 209 STUDENTS // CLASS SEPARATION: 96.3%</div>
+            </div>
         </div>
         """)
     with col_m3:
         st.html("""
-        <div class="metric-grid-card"
-             data-tooltip-tag="03 // RETENTION OPTIMIZATION"
-             data-tooltip-title="100.0% At-Risk Sensitivity"
-             data-tooltip-desc="Optimized via out-of-fold F2-score threshold tuning (tau = 0.338). At this decision boundary, the model successfully caught all 46 out of 46 at-risk students in the unseen test set with 0 False Negatives, ensuring no student is left without support."
-             data-tooltip-stat="TUNED THRESHOLD: 0.338 // ZERO FALSE NEGATIVES (46/46)">
+        <div class="metric-grid-card card-pos-mid">
             <div class="card-tag">03 // AT-RISK SENSITIVITY</div>
             <div class="card-val">100.0%</div>
             <div class="card-desc">Recall achieved at OOF-optimized F2 threshold (0.338). Zero false negatives.</div>
+            <div class="card-popup">
+                <div class="popup-tag">03 // RETENTION OPTIMIZATION</div>
+                <div class="popup-title">100.0% At-Risk Sensitivity</div>
+                <div class="popup-desc">Optimized via out-of-fold F2-score threshold tuning (tau = 0.338). At this decision boundary, the model successfully caught all 46 out of 46 at-risk students in the unseen test set with 0 False Negatives, ensuring no student is left without support.</div>
+                <div class="popup-stat">TUNED THRESHOLD: 0.338 // ZERO FALSE NEGATIVES (46/46)</div>
+            </div>
         </div>
         """)
     with col_m4:
         st.html("""
-        <div class="metric-grid-card"
-             data-tooltip-tag="04 // EXPLAINABLE AI & SYNTHESIS"
-             data-tooltip-title="TreeSHAP Intervention Engine"
-             data-tooltip-desc="Computes exact Shapley attribution vectors for every individual student prediction. The counseling synthesizer deterministically maps the top 3 adverse drivers (e.g., low G2 scores, prior failures, high unexcused absences) into structured, actionable advising protocols."
-             data-tooltip-stat="LOCAL SHAP DECOMPOSITION // ZERO GENERATIVE HALLUCINATIONS">
+        <div class="metric-grid-card card-pos-right">
             <div class="card-tag">04 // INTERVENTION ENGINE</div>
             <div class="card-val">SHAP Driver</div>
             <div class="card-desc">Rule-based translation of top 3 Shapley vectors into academic counseling briefs.</div>
+            <div class="card-popup">
+                <div class="popup-tag">04 // EXPLAINABLE AI & SYNTHESIS</div>
+                <div class="popup-title">TreeSHAP Intervention Engine</div>
+                <div class="popup-desc">Computes exact Shapley attribution vectors for every individual student prediction. The counseling synthesizer deterministically maps the top 3 adverse drivers (e.g., low G2 scores, prior failures, high unexcused absences) into structured, actionable advising protocols.</div>
+                <div class="popup-stat">LOCAL SHAP DECOMPOSITION // ZERO GENERATIVE HALLUCINATIONS</div>
+            </div>
         </div>
         """)
 
