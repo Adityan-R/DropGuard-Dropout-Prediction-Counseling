@@ -213,10 +213,32 @@ def _inject_custom_css():
     @import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Silkscreen:wght@400;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
     /* Global Typography Reset with Pixelify Sans */
-    html, body, [class*="st-"], .stMarkdown, p, span, label, input, select, textarea, div {
+    html, body, .stApp, .stMarkdown, p, label, input, select, textarea {
         font-family: 'Pixelify Sans', monospace, sans-serif !important;
         font-size: 15.5px;
         letter-spacing: 0.02em;
+    }
+
+    /* Protect Streamlit icon ligatures, SVGs, and collapse buttons */
+    [data-testid="stIconMaterial"],
+    [data-testid="stIcon"],
+    [data-testid="stExpanderToggleIcon"],
+    [data-testid="stSidebarCollapseButton"],
+    .material-symbols-rounded,
+    .material-icons,
+    [class*="material-symbols"],
+    [class*="MaterialSymbols"],
+    button[kind="header"] span,
+    summary svg,
+    summary span[aria-hidden="true"],
+    [data-testid="stSidebarCollapseButton"] span,
+    svg,
+    svg * {
+        font-family: 'Material Symbols Rounded', 'Material Icons', sans-serif !important;
+        font-style: normal !important;
+        font-variant: normal !important;
+        text-transform: none !important;
+        line-height: 1 !important;
     }
     
     /* Code and Technical Tags */
@@ -233,6 +255,37 @@ def _inject_custom_css():
     .stApp {
         background-color: #06060C;
         color: #F8FAFC;
+    }
+
+    /* Sidebar Width & Polish */
+    [data-testid="stSidebar"] {
+        min-width: 350px !important;
+        max-width: 390px !important;
+    }
+
+    /* Fix Expander in Sidebar so text and icon never overlap */
+    details summary {
+        display: flex !important;
+        align-items: center !important;
+        gap: 0.6rem !important;
+        padding: 0.6rem 0.75rem !important;
+        line-height: 1.35 !important;
+        background: rgba(16, 15, 31, 0.65) !important;
+        border-radius: 6px !important;
+        border: 1px solid rgba(255, 255, 255, 0.09) !important;
+        margin-top: 0.6rem !important;
+        margin-bottom: 0.8rem !important;
+    }
+    
+    details summary:hover {
+        border-color: rgba(139, 92, 246, 0.45) !important;
+    }
+    
+    details summary p {
+        margin: 0 !important;
+        font-size: 0.88rem !important;
+        font-weight: 600 !important;
+        white-space: normal !important;
     }
     
     /* Hero Banner with purple digital scanline wave */
@@ -537,19 +590,19 @@ def main() -> None:
 
                 col1, col2 = st.columns(2)
                 with col1:
-                    G1 = st.slider("Period 1 Grade (0-20)", 0, 20, _val("G1", 10))
+                    G1 = st.slider("Period 1 Grade", 0, 20, _val("G1", 10))
                     studytime = st.slider("Study Time (1-4)", 1, 4, _val("studytime", 2))
                     failures = st.slider("Past Failures", 0, 3, _val("failures", 0))
-                    course = st.selectbox("Course Subject", ["math", "portuguese"], index=0 if _val("course", "portuguese") == "math" else 1)
+                    course = st.selectbox("Course", ["math", "portuguese"], index=0 if _val("course", "portuguese") == "math" else 1)
                 with col2:
-                    G2 = st.slider("Period 2 Grade (0-20)", 0, 20, _val("G2", 10))
-                    absences = st.slider("School Absences", 0, 93, _val("absences", 4))
-                    higher = st.selectbox("Higher Education Intent", ["yes", "no"], index=0 if _val("higher", "yes") == "yes" else 1)
+                    G2 = st.slider("Period 2 Grade", 0, 20, _val("G2", 10))
+                    absences = st.slider("Absences", 0, 93, _val("absences", 4))
+                    higher = st.selectbox("Higher Ed Intent", ["yes", "no"], index=0 if _val("higher", "yes") == "yes" else 1)
                     sex = st.selectbox("Sex", ["F", "M"], index=0 if _val("sex", "F") == "F" else 1)
 
-                age = st.slider("Student Age", 15, 22, _val("age", 17))
+                age = st.slider("Age", 15, 22, _val("age", 17))
 
-                with st.expander("Background & Socioeconomic Attributes", expanded=False):
+                with st.expander("More Student Attributes", expanded=False):
                     school = st.selectbox("School Campus", ["GP", "MS"], index=0 if _val("school", "GP") == "GP" else 1)
                     address = st.selectbox("Address Setting", ["U", "R"], index=0 if _val("address", "U") == "U" else 1)
                     famsize = st.selectbox("Family Size", ["GT3", "LE3"], index=0 if _val("famsize", "GT3") == "GT3" else 1)
@@ -576,6 +629,7 @@ def main() -> None:
                     Walc = st.slider("Weekend Alcohol Consumption (1-5)", 1, 5, _val("Walc", 1))
                     health = st.slider("Self-Reported Health (1-5)", 1, 5, _val("health", 3))
 
+                st.write("")
                 submitted = st.form_submit_button("Run Risk Assessment & Diagnostics", type="primary", use_container_width=True)
 
         # Main Telemetry Viewport
