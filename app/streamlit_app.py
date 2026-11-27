@@ -184,7 +184,7 @@ def _shap_bar_chart(
     colors = ["#F43F5E" if v > 0 else "#2563EB" for v in top_values]
 
     y_pos = np.arange(len(top_names))
-    ax.barh(y_pos, top_values[::-1], color=colors[::-1], height=0.55, edgecolor="rgba(255,255,255,0.15)", linewidth=0.8)
+    ax.barh(y_pos, top_values[::-1], color=colors[::-1], height=0.55, edgecolor=(1.0, 1.0, 1.0, 0.15), linewidth=0.8)
 
     ax.set_yticks(y_pos)
     ax.set_yticklabels(top_names[::-1], color="#E2E8F0", fontsize=9.5, fontweight="bold", fontfamily="monospace")
@@ -192,9 +192,9 @@ def _shap_bar_chart(
     ax.axvline(0, color="#64748B", linewidth=1.0, linestyle="--", alpha=0.7)
 
     # Grid & borders
-    ax.grid(axis="x", color="rgba(255,255,255,0.06)", linestyle="-", linewidth=0.7)
+    ax.grid(axis="x", color=(1.0, 1.0, 1.0, 0.06), linestyle="-", linewidth=0.7)
     for spine in ax.spines.values():
-        spine.set_color("rgba(255,255,255,0.12)")
+        spine.set_color((1.0, 1.0, 1.0, 0.12))
 
     ax.set_xlabel("SHAP VALUE (<- PROTECTIVE | RISK ELEVATING ->)", color="#94A3B8", fontsize=9, labelpad=8, fontfamily="monospace")
     ax.set_title(f"TOP {top_n} MODEL DRIVERS [LOCAL SHAP VECTOR]", color="#F8FAFC", fontsize=10.5, fontweight="bold", pad=12, loc="left", fontfamily="monospace")
@@ -993,7 +993,7 @@ def main() -> None:
                             fig = _shap_bar_chart(pipeline, X_student, feature_cols, top_n=5)
                             st.pyplot(fig)
                             plt.close(fig)
-                            st.caption("Magenta bars exert upward pressure toward attrition; violet bars indicate stabilizing academic factors.")
+                            st.caption("Crimson bars exert upward pressure toward attrition; cobalt blue bars indicate stabilizing academic factors.")
                         except Exception as shap_err:
                             st.warning(f"SHAP attribution notice: {shap_err}")
 
