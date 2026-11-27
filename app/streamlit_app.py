@@ -212,9 +212,25 @@ def _inject_custom_css():
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Silkscreen:wght@400;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
-    /* Global Typography Reset with Pixelify Sans */
-    html, body, .stApp, .stMarkdown, p, label, input, select, textarea {
-        font-family: 'Pixelify Sans', monospace, sans-serif !important;
+    /* Dedicated crisp pixel digits (0-9) via Jersey 20 so 2 never resembles 8 */
+    @font-face {
+        font-family: 'Pixelify Digits';
+        font-style: normal;
+        font-weight: 100 900;
+        font-display: swap;
+        src: url(https://fonts.gstatic.com/s/jersey20/v4/ZgNRjP1ON6jeW4D12z3sq0Xr.woff2) format('woff2');
+        unicode-range: U+0030-0039;
+        size-adjust: 110%;
+    }
+
+    /* Global Typography Reset with Pixelify Sans + Crisp Pixel Digits */
+    html, body, .stApp, .stMarkdown, p, label, input, select, textarea,
+    li, td, th, .card-desc,
+    [data-testid="stSliderThumbValue"],
+    [data-testid="stTickBarMin"],
+    [data-testid="stTickBarMax"],
+    [data-baseweb="select"] div {
+        font-family: 'Pixelify Digits', 'Pixelify Sans', monospace, sans-serif !important;
         font-size: 15.5px;
         letter-spacing: 0.02em;
     }
@@ -248,7 +264,7 @@ def _inject_custom_css():
 
     /* Headings */
     h1, h2, h3, h4, h5, h6, .hero-title, .card-val {
-        font-family: 'Pixelify Sans', 'Silkscreen', monospace !important;
+        font-family: 'Pixelify Digits', 'Pixelify Sans', 'Silkscreen', monospace !important;
         letter-spacing: 0.03em;
     }
     
@@ -292,7 +308,7 @@ def _inject_custom_css():
     li[role="option"] {
         background: transparent !important;
         color: #E2E8F0 !important;
-        font-family: 'Pixelify Sans', monospace !important;
+        font-family: 'Pixelify Digits', 'Pixelify Sans', monospace !important;
         font-size: 0.88rem !important;
         padding: 0.55rem 0.85rem !important;
         transition: background 0.15s ease, color 0.15s ease !important;
@@ -573,7 +589,7 @@ def _inject_custom_css():
         font-size: 0.95rem !important;
         font-weight: 700 !important;
         color: #FFFFFF !important;
-        font-family: 'Pixelify Sans', monospace !important;
+        font-family: 'Pixelify Digits', 'Pixelify Sans', monospace !important;
         letter-spacing: 0.02em;
         margin-bottom: 0.45rem;
         border-bottom: 1px solid rgba(255, 255, 255, 0.12);
@@ -583,7 +599,7 @@ def _inject_custom_css():
     .card-popup .popup-desc {
         font-size: 0.83rem !important;
         color: #CBD5E1 !important;
-        font-family: 'Pixelify Sans', monospace !important;
+        font-family: 'Pixelify Digits', 'Pixelify Sans', monospace !important;
         line-height: 1.45 !important;
     }
 
@@ -965,7 +981,7 @@ def main() -> None:
                         <div style="font-family:'Silkscreen',monospace; font-size:0.75rem; color:{badge_color}; font-weight:700; letter-spacing:0.08em;">
                             DIAGNOSTIC STATUS // {status_title}
                         </div>
-                        <div style="font-size:1.45rem; font-weight:700; color:#FFFFFF; margin-top:0.2rem;">
+                        <div style="font-family:'Pixelify Digits','Pixelify Sans',monospace; font-size:1.45rem; font-weight:700; color:#FFFFFF; margin-top:0.2rem;">
                             Predicted Dropout Probability: {risk_pct}%
                         </div>
                         <div style="font-size:0.85rem; color:#CBD5E1; margin-top:0.3rem;">
